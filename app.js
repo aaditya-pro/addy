@@ -5,31 +5,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     const emptyState = document.getElementById("emptyState");
     const fileCount = document.getElementById("fileCount");
     const searchInput = document.getElementById("searchInput");
+    const categories = document.querySelectorAll(".category");
 
     let files = [];
-    let currentCategory = "all";
+    let activeCategory = "all";
 
     /* =========================
-       SUPABASE
+       SUPABASE CHECK
     ========================= */
 
-    if (!window.supabase) {
-        showError("Supabase library failed to load.");
+    if (!window.supabaseClient) {
+        showError("Supabase configuration not found");
         return;
     }
-
-    if (
-        typeof SUPABASE_URL === "undefined" ||
-        typeof SUPABASE_ANON_KEY === "undefined"
-    ) {
-        showError("Supabase configuration not found.");
-        return;
-    }
-
-    const supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
 
     /* =========================
        LOAD FILES
@@ -37,38 +25,42 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function loadFiles() {
 
-        loading.classList.remove("hidden");
-        emptyState.classList.add("hidden");
-        fileGrid.innerHTML = "";
-
         try {
 
-            const { data, error } = await supabaseClient
-                .from("files")
-                .select("*")
-                .order("created_at", { ascending: false });
+            loading?.classList.remove("hidden");
+
+            const { data, error } =
+                await window.supabaseClient
+                    .from("files")
+                    .select("*")
+                    .order("created_at", {
+                        ascending: false
+                    });
 
             if (error) {
-                throw error;
+
+                console.error(
+                    "Supabase database error:",
+                    error
+                );
+
+                showError("Unable to load your notes");
+                return;
             }
 
             files = data || [];
-
-            loading.classList.add("hidden");
-
-            updateCount(files.length);
 
             renderFiles();
 
         } catch (error) {
 
-            console.error("File loading error:", error);
+            console.error(error);
 
-            loading.classList.add("hidden");
+            showError("Something went wrong");
 
-            showError(
-                "Unable to load your library. Please try again."
-            );
+        } finally {
+
+            loading?.classList.add("hidden");
         }
     }
 
@@ -78,52 +70,73 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function renderFiles() {
 
-        const searchTerm =
-            searchInput?.value.trim().toLowerCase() || "";
+        const search =
+            searchInput?.value
+                .trim()
+                .toLowerCase() || "";
 
-        const filtered = files.filter(file => {
+        const filtered =
+            files.filter(file => {
 
-            const name = String(
-                file.name ||
-                file.title ||
-                file.file_name ||
-                ""
-            ).toLowerCase();
+                const title =
+                    String(
+                        file.title ||
+                        file.name ||
+                        file.file_name ||
+                        ""
+                    ).toLowerCase();
 
-            const description = String(
-                file.description || ""
-            ).toLowerCase();
+                const description =
+                    String(
+                        file.description || ""
+                    ).toLowerCase();
 
-            const category =
-                getCategory(file);
+                const category =
+                    getCategory(file);
 
-            const categoryMatch =
-                currentCategory === "all" ||
-                category === currentCategory;
+                const searchMatch =
+                    !search ||
+                    title.includes(search) ||
+                    description.includes(search);
 
-            const searchMatch =
-                !searchTerm ||
-                name.includes(searchTerm) ||
-                description.includes(searchTerm);
+                const categoryMatch =
+                    activeCategory === "all" ||
+                    category === activeCategory;
 
-            return categoryMatch && searchMatch;
-        });
+                return (
+                    searchMatch &&
+                    categoryMatch
+                );
+            });
+
 
         fileGrid.innerHTML = "";
 
+        if (fileCount) {
+
+            fileCount.textContent =
+                `${filtered.length} ${
+                    filtered.length === 1
+                        ? "file"
+                        : "files"
+                }`;
+        }
+
+
         if (!filtered.length) {
 
-            emptyState.classList.remove("hidden");
+            emptyState?.classList.remove("hidden");
 
             return;
         }
 
-        emptyState.classList.add("hidden");
+        emptyState?.classList.add("hidden");
+
 
         filtered.forEach((file, index) => {
 
             const card =
-                createFileCard(file, index);
+                createCard(file, index);
 
             fileGrid.appendChild(card);
         });
@@ -133,7 +146,7 @@ document.addEventListener("DOMContentLoaded", async () => {
        FILE CARD
     ========================= */
 
-    function createFileCard(file, index) {
+    function createCard(file, index) {
 
         const card =
             document.createElement("article");
@@ -141,44 +154,48 @@ document.addEventListener("DOMContentLoaded", async () => {
         card.className = "file-card";
 
         card.style.animationDelay =
-            `${index * 70}ms`;
+            `${index * 0.06}s`;
 
-        const name =
-            file.name ||
+
+        const title =
             file.title ||
+            file.name ||
             file.file_name ||
-            "Untitled file";
+            "Untitled";
+
 
         const description =
             file.description ||
             "Study material from ADDY.";
 
+
         const category =
             getCategory(file);
 
-        const extension =
-            getExtension(file);
 
         const icon =
-            getIcon(extension);
+            getIcon(category);
+
+
+        const url =
+            getFileURL(file);
+
 
         const size =
             formatSize(
                 file.size ||
-                file.file_size ||
-                0
+                file.file_size
             );
 
-        const downloadURL =
-            getDownloadURL(file);
 
         card.innerHTML = `
+
             <div class="file-type">
                 ${icon}
             </div>
 
             <h3>
-                ${escapeHTML(name)}
+                ${escapeHTML(title)}
             </h3>
 
             <p class="file-description">
@@ -186,59 +203,43 @@ document.addEventListener("DOMContentLoaded", async () => {
             </p>
 
             <div class="file-info">
-                <span>${extension.toUpperCase()}</span>
-                <span>•</span>
-                <span>${size}</span>
+
+                ${category.toUpperCase()}
+
+                ${
+                    size
+                        ? ` • ${size}`
+                        : ""
+                }
+
             </div>
 
-            <a
-                class="download-button"
-                href="${downloadURL}"
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-            >
-                ↓ DOWNLOAD
-            </a>
+            ${
+                url
+                    ? `
+                    <a
+                        href="${escapeHTML(url)}"
+                        class="download-button"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                    >
+                        ↓ DOWNLOAD
+                    </a>
+                    `
+                    : `
+                    <button
+                        class="download-button"
+                        disabled
+                    >
+                        FILE UNAVAILABLE
+                    </button>
+                    `
+            }
+
         `;
 
         return card;
-    }
-
-    /* =========================
-       DOWNLOAD URL
-    ========================= */
-
-    function getDownloadURL(file) {
-
-        if (file.url) {
-            return file.url;
-        }
-
-        if (file.download_url) {
-            return file.download_url;
-        }
-
-        if (file.file_url) {
-            return file.file_url;
-        }
-
-        const path =
-            file.path ||
-            file.file_path ||
-            file.storage_path;
-
-        if (!path) {
-            return "#";
-        }
-
-        const {
-            data
-        } = supabaseClient.storage
-            .from("addy-files")
-            .getPublicUrl(path);
-
-        return data?.publicUrl || "#";
     }
 
     /* =========================
@@ -247,235 +248,210 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function getCategory(file) {
 
-        if (file.category) {
-            return String(
-                file.category
+        const value =
+            String(
+                file.category ||
+                file.type ||
+                file.file_type ||
+                file.mime_type ||
+                file.title ||
+                file.name ||
+                ""
             ).toLowerCase();
-        }
 
-        const extension =
-            getExtension(file);
+
+        if (value.includes("pdf"))
+            return "pdf";
 
         if (
-            extension === "pdf" ||
-            extension === "docx" ||
-            extension === "xlsx" ||
-            extension === "pptx"
-        ) {
-            return extension;
-        }
+            value.includes("doc") ||
+            value.includes("word")
+        )
+            return "docx";
+
+        if (
+            value.includes("xls") ||
+            value.includes("sheet")
+        )
+            return "xlsx";
+
+        if (
+            value.includes("ppt") ||
+            value.includes("presentation")
+        )
+            return "pptx";
 
         return "other";
     }
 
-    /* =========================
-       EXTENSION
-    ========================= */
 
-    function getExtension(file) {
-
-        const filename =
-            file.name ||
-            file.title ||
-            file.file_name ||
-            file.path ||
-            "";
-
-        const parts =
-            String(filename).split(".");
-
-        if (parts.length < 2) {
-            return "other";
-        }
-
-        return parts.pop().toLowerCase();
-    }
-
-    /* =========================
-       ICON
-    ========================= */
-
-    function getIcon(extension) {
+    function getIcon(category) {
 
         const icons = {
+
             pdf: "📕",
+
             docx: "📘",
+
             xlsx: "📊",
+
             pptx: "📽️",
-            doc: "📘",
-            xls: "📊",
-            ppt: "📽️"
+
+            other: "📎"
         };
 
-        return icons[extension] || "📎";
+        return icons[category] || "📎";
     }
 
     /* =========================
-       FILE SIZE
+       FILE URL
+    ========================= */
+
+    function getFileURL(file) {
+
+        /* If database already stores URL */
+
+        if (file.url)
+            return file.url;
+
+        if (file.file_url)
+            return file.file_url;
+
+        if (file.download_url)
+            return file.download_url;
+
+        if (file.public_url)
+            return file.public_url;
+
+
+        /* Storage path */
+
+        const path =
+            file.path ||
+            file.file_path ||
+            file.storage_path ||
+            file.filename;
+
+
+        if (!path)
+            return "";
+
+
+        const { data } =
+            window.supabaseClient
+                .storage
+                .from(SUPABASE_BUCKET)
+                .getPublicUrl(path);
+
+
+        return data?.publicUrl || "";
+    }
+
+    /* =========================
+       SIZE
     ========================= */
 
     function formatSize(bytes) {
 
-        if (!bytes || bytes <= 0) {
-            return "File";
-        }
-
-        const units = [
-            "B",
-            "KB",
-            "MB",
-            "GB"
-        ];
+        if (!bytes)
+            return "";
 
         let size = Number(bytes);
+
+        const units =
+            ["B", "KB", "MB", "GB"];
+
         let unit = 0;
 
         while (
             size >= 1024 &&
             unit < units.length - 1
         ) {
+
             size /= 1024;
+
             unit++;
         }
 
-        return `${size.toFixed(unit === 0 ? 0 : 1)} ${units[unit]}`;
-    }
-
-    /* =========================
-       COUNT
-    ========================= */
-
-    function updateCount(count) {
-
-        if (!fileCount) return;
-
-        fileCount.textContent =
-            `${count} ${count === 1 ? "file" : "files"}`;
+        return `${size.toFixed(
+            size >= 10 ? 1 : 2
+        )} ${units[unit]}`;
     }
 
     /* =========================
        SEARCH
     ========================= */
 
-    if (searchInput) {
+    searchInput?.addEventListener(
+        "input",
+        renderFiles
+    );
 
-        searchInput.addEventListener(
-            "input",
-            renderFiles
-        );
-
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    (event.metaKey || event.ctrlKey) &&
-                    event.key.toLowerCase() === "k"
-                ) {
-
-                    event.preventDefault();
-
-                    searchInput.focus();
-                }
-
-                if (
-                    event.key === "Escape" &&
-                    document.activeElement === searchInput
-                ) {
-
-                    searchInput.value = "";
-
-                    renderFiles();
-
-                    searchInput.blur();
-                }
-            }
-        );
-    }
 
     /* =========================
        CATEGORIES
     ========================= */
 
-    document
-        .querySelectorAll(".category")
-        .forEach(button => {
+    categories.forEach(button => {
 
-            button.addEventListener(
-                "click",
-                () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-                    document
-                        .querySelectorAll(".category")
-                        .forEach(btn =>
-                            btn.classList.remove("active")
-                        );
+                categories.forEach(
+                    item =>
+                        item.classList.remove(
+                            "active"
+                        )
+                );
 
-                    button.classList.add("active");
+                button.classList.add("active");
 
-                    currentCategory =
-                        button.dataset.category ||
-                        "all";
+                activeCategory =
+                    button.dataset.category ||
+                    "all";
 
-                    renderFiles();
-                }
-            );
-        });
+                renderFiles();
+            }
+        );
+    });
+
 
     /* =========================
-       SCROLL ANIMATION
+       COMMAND + K
     ========================= */
 
-    const revealElements =
-        document.querySelectorAll(
-            ".hero, .library-section, .file-card, footer"
-        );
+    document.addEventListener(
+        "keydown",
+        event => {
 
-    if ("IntersectionObserver" in window) {
+            if (
+                (event.metaKey ||
+                    event.ctrlKey) &&
+                event.key.toLowerCase() === "k"
+            ) {
 
-        const observer =
-            new IntersectionObserver(
-                entries => {
+                event.preventDefault();
 
-                    entries.forEach(entry => {
+                searchInput?.focus();
+            }
 
-                        if (entry.isIntersecting) {
 
-                            entry.target.classList.add(
-                                "visible"
-                            );
+            if (
+                event.key === "Escape" &&
+                document.activeElement ===
+                    searchInput
+            ) {
 
-                            observer.unobserve(
-                                entry.target
-                            );
-                        }
-                    });
+                searchInput.value = "";
 
-                },
-                {
-                    threshold: 0.08
-                }
-            );
+                renderFiles();
 
-        revealElements.forEach(
-            element =>
-                observer.observe(element)
-        );
-    }
+                searchInput.blur();
+            }
+        }
+    );
 
-    /* =========================
-       SAFE HTML
-    ========================= */
-
-    function escapeHTML(value) {
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
 
     /* =========================
        ERROR
@@ -483,22 +459,45 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function showError(message) {
 
+        loading?.classList.add("hidden");
+
+        if (!fileGrid)
+            return;
+
         fileGrid.innerHTML = `
+
             <div class="error-state">
+
                 <div>⚠</div>
 
                 <h3>
-                    Something went wrong
+                    ${escapeHTML(message)}
                 </h3>
 
                 <p>
-                    ${escapeHTML(message)}
+                    Please try refreshing the page.
                 </p>
-            </div>
-        `;
 
-        emptyState.classList.add("hidden");
+            </div>
+
+        `;
     }
+
+
+    /* =========================
+       SECURITY
+    ========================= */
+
+    function escapeHTML(value) {
+
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
 
     /* =========================
        START
