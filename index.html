@@ -1,34 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>ADDY — Digital Study Library</title>
+    <meta charset="UTF-8">
 
-  <meta
-    name="description"
-    content="ADDY — Your personal digital notebook for notes, presentations, documents and study resources."
-  >
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>ADDY — Digital Study Library</title>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet"
-  >
+    <meta
+        name="description"
+        content="ADDY — Your personal digital notebook for notes, presentations, documents and study resources."
+    >
 
-  <link rel="stylesheet" href="style.css">
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
-  <!-- BACKGROUND -->
-  <div class="background-glow glow-one"></div>
-  <div class="background-glow glow-two"></div>
 
-  <div class="particles" aria-hidden="true">
+<!-- BACKGROUND -->
+
+<div class="background-glow glow-one"></div>
+<div class="background-glow glow-two"></div>
+
+<div
+    class="particles"
+    aria-hidden="true"
+>
+
     <span></span>
     <span></span>
     <span></span>
@@ -37,419 +62,615 @@
     <span></span>
     <span></span>
     <span></span>
-  </div>
 
+</div>
 
-  <!-- NAVIGATION -->
-  <header class="navbar">
 
-    <a href="index.html" class="brand">
-      <span class="brand-icon"></span>
-      <span>ADDY</span>
-    </a>
+<!-- NAVBAR -->
 
-    <nav class="nav-links">
-      <a href="#library">Library</a>
-      <a href="#categories">Categories</a>
-      <a href="#contact">Contact</a>
-      <a href="admin.html" class="admin-link">Admin</a>
-    </nav>
+<header class="navbar">
 
-    <button class="mobile-menu" aria-label="Open menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+    <a
+        href="index.html"
+        class="brand"
+    >
 
-  </header>
-
-
-  <!-- HERO -->
-  <main>
-
-    <section class="hero">
-
-      <div class="hero-container">
-
-        <!-- LEFT -->
-        <div class="hero-content reveal">
-
-          <div class="hero-tagline">
-            <span class="tagline-dot"></span>
-            DIGITAL STUDY LIBRARY
-          </div>
-
-          <h1 class="hero-heading">
-            Study.
-            <span>Save.</span>
-            Download.
-          </h1>
-
-          <p class="hero-subtext">
-            Your personal digital notebook for notes,
-            presentations, documents and everything you
-            need to learn.
-          </p>
-
-          <div class="hero-actions">
-
-            <a href="#library" class="btn btn-primary">
-              Explore Library
-              <span>↓</span>
-            </a>
-
-            <a href="#categories" class="btn btn-secondary">
-              View Categories
-            </a>
-
-          </div>
-
-          <div class="hero-meta">
-            ✦ Simple
-            <span>•</span>
-            Beautiful
-            <span>•</span>
-            Made for learning
-          </div>
-
-        </div>
-
-
-        <!-- NOTEBOOK -->
-        <div class="hero-visual reveal">
-
-          <div class="notebook">
-
-            <div class="notebook-cover">
-
-              <div class="cover-grid"></div>
-
-              <div class="cover-top">
-                <span>ADDY</span>
-                <span>2026</span>
-              </div>
-
-              <div class="cover-title">
-
-                <small>MY DIGITAL</small>
-
-                <strong>NOTE</strong>
-
-                <em>book.</em>
-
-                <div class="hand-line"></div>
-
-                <p>
-                  learn • create • remember
-                </p>
-
-              </div>
-
-              <div class="cover-bottom">
-                <span>STUDY EDITION</span>
-                <span>01</span>
-              </div>
-
-            </div>
-
-
-            <div class="notebook-page">
-
-              <div class="paper-hole hole-one"></div>
-              <div class="paper-hole hole-two"></div>
-              <div class="paper-hole hole-three"></div>
-
-              <div class="paper-content">
-
-                <span>today's notes ✦</span>
-
-                <h3>
-                  Everything worth learning
-                  in one place.
-                </h3>
-
-                <div class="paper-lines"></div>
-
-                <div class="paper-signature">
-                  — ADDY
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- LIBRARY -->
-    <section id="library" class="library-section">
-
-      <div class="section-heading reveal">
-
-        <div>
-          <span class="section-label">
-            YOUR LIBRARY
-          </span>
-
-          <h2>
-            Study materials
-          </h2>
-        </div>
-
-        <div id="fileCount" class="file-count">
-          0 files
-        </div>
-
-      </div>
-
-
-      <!-- SEARCH -->
-      <div class="search-box reveal">
-
-        <span class="search-icon">⌕</span>
-
-        <input
-          id="searchInput"
-          type="search"
-          placeholder="Search your notes..."
-          autocomplete="off"
-        >
-
-        <kbd>⌘ K</kbd>
-
-        <button
-          id="clearSearch"
-          class="clear-search"
-          aria-label="Clear search"
-        >
-          ×
-        </button>
-
-      </div>
-
-
-      <!-- CATEGORIES -->
-      <div
-        id="categories"
-        class="categories reveal"
-      >
-
-        <button
-          class="category active"
-          data-category="all"
-        >
-          All
-        </button>
-
-        <button
-          class="category"
-          data-category="pdf"
-        >
-          <span>📕</span>
-          PDF
-        </button>
-
-        <button
-          class="category"
-          data-category="docx"
-        >
-          <span>📘</span>
-          DOCX
-        </button>
-
-        <button
-          class="category"
-          data-category="xlsx"
-        >
-          <span>📊</span>
-          XLSX
-        </button>
-
-        <button
-          class="category"
-          data-category="pptx"
-        >
-          <span>📽️</span>
-          PPTX
-        </button>
-
-        <button
-          class="category"
-          data-category="other"
-        >
-          <span>📎</span>
-          Other
-        </button>
-
-      </div>
-
-
-      <!-- LOADING -->
-      <div
-        id="loading"
-        class="loading"
-      >
-
-        <div class="loading-book">
-          <span></span>
-          <span></span>
-        </div>
-
-        <p>
-          Loading your library...
-        </p>
-
-      </div>
-
-
-      <!-- FILE GRID -->
-      <div
-        id="fileGrid"
-        class="file-grid"
-      ></div>
-
-
-      <!-- EMPTY -->
-      <div
-        id="emptyState"
-        class="empty-state hidden"
-      >
-
-        <div class="empty-icon">
-          ✦
-        </div>
-
-        <h3>
-          No notes found
-        </h3>
-
-        <p>
-          Try another search or category.
-        </p>
-
-      </div>
-
-
-      <!-- ERROR -->
-      <div
-        id="errorState"
-        class="error-state hidden"
-      >
-
-        <div class="error-icon">
-          ⚠
-        </div>
-
-        <h3>
-          Something went wrong
-        </h3>
-
-        <p>
-          Supabase configuration not found.
-        </p>
-
-      </div>
-
-    </section>
-
-
-    <!-- CONTACT -->
-    <section id="contact" class="contact-section">
-
-      <div class="contact-card reveal">
-
-        <div class="contact-small">
-          ✦ GET IN TOUCH
-        </div>
-
-        <h2>
-          Let's stay
-          <span>connected.</span>
-        </h2>
-
-        <p>
-          Follow ADDY for updates, study resources
-          and more.
-        </p>
-
-        <div class="social-links">
-
-          <a
-            href="https://www.instagram.com/noturtyp.addy/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="social instagram"
-          >
-            <span>◎</span>
-            Instagram
-            <small>@noturtyp.addy</small>
-          </a>
-
-          <a
-            href="https://www.tiktok.com/@noturtyp.addy"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="social tiktok"
-          >
-            <span>♪</span>
-            TikTok
-            <small>@noturtyp.addy</small>
-          </a>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- FOOTER -->
-  <footer>
-
-    <div class="footer-inner">
-
-      <div class="footer-brand">
-        ADDY<span>.</span>
-      </div>
-
-      <p>
-        Your little corner of the internet
-        for beautiful study notes.
-      </p>
-
-      <div class="footer-divider"></div>
-
-      <div class="footer-bottom">
-
-        <span>
-          © 2026 ADDY — Made for learning.
+        <span class="brand-icon">
+            
         </span>
 
-        <a href="admin.html">
-          Admin →
+        <span>
+            ADDY
+        </span>
+
+    </a>
+
+
+    <nav class="nav-links">
+
+        <a href="#library">
+            Library
         </a>
 
-      </div>
+        <a href="#categories">
+            Categories
+        </a>
+
+        <a href="#contact">
+            Contact
+        </a>
+
+        <a
+            href="admin.html"
+            class="admin-link"
+        >
+            Admin
+        </a>
+
+    </nav>
+
+
+    <button
+        class="mobile-menu"
+        aria-label="Open menu"
+        type="button"
+    >
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+    </button>
+
+</header>
+
+
+<!-- MAIN -->
+
+<main>
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="hero-container">
+
+
+        <div class="hero-content reveal">
+
+            <div class="hero-tagline">
+
+                <span class="tagline-dot"></span>
+
+                DIGITAL STUDY LIBRARY
+
+            </div>
+
+
+            <h1 class="hero-heading">
+
+                Study.
+
+                <span>
+                    Save.
+                </span>
+
+                Download.
+
+            </h1>
+
+
+            <p class="hero-subtext">
+
+                Your personal digital notebook for notes,
+                presentations, documents and everything you
+                need to learn.
+
+            </p>
+
+
+            <div class="hero-actions">
+
+                <a
+                    href="#library"
+                    class="btn btn-primary"
+                >
+
+                    Explore Library
+
+                    <span>
+                        ↓
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#categories"
+                    class="btn btn-secondary"
+                >
+
+                    View Categories
+
+                </a>
+
+            </div>
+
+
+            <div class="hero-meta">
+
+                ✦ Simple
+
+                <span>•</span>
+
+                Beautiful
+
+                <span>•</span>
+
+                Made for learning
+
+            </div>
+
+        </div>
+
+
+        <!-- 3D NOTEBOOK -->
+
+        <div class="hero-visual reveal">
+
+            <div class="notebook">
+
+                <div class="notebook-cover">
+
+                    <div class="cover-grid"></div>
+
+
+                    <div class="cover-top">
+
+                        <span>
+                            ADDY
+                        </span>
+
+                        <span>
+                            2026
+                        </span>
+
+                    </div>
+
+
+                    <div class="cover-title">
+
+                        <small>
+                            MY DIGITAL
+                        </small>
+
+                        <strong>
+                            NOTE
+                        </strong>
+
+                        <em>
+                            book.
+                        </em>
+
+                        <div class="hand-line"></div>
+
+                        <p>
+                            learn • create • remember
+                        </p>
+
+                    </div>
+
+
+                    <div class="cover-bottom">
+
+                        <span>
+                            STUDY EDITION
+                        </span>
+
+                        <span>
+                            01
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="notebook-page">
+
+                    <div class="paper-hole hole-one"></div>
+                    <div class="paper-hole hole-two"></div>
+                    <div class="paper-hole hole-three"></div>
+
+
+                    <div class="paper-content">
+
+                        <span>
+                            today's notes ✦
+                        </span>
+
+                        <h3>
+                            Everything worth learning
+                            in one place.
+                        </h3>
+
+                        <div class="paper-lines"></div>
+
+                        <div class="paper-signature">
+                            — ADDY
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
-  </footer>
+</section>
 
 
-  <!-- SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- LIBRARY -->
 
-  <script src="config.js"></script>
+<section
+    id="library"
+    class="library-section"
+>
 
-  <script src="app.js"></script>
+
+    <div class="section-heading reveal">
+
+        <div>
+
+            <span class="section-label">
+                YOUR LIBRARY
+            </span>
+
+            <h2>
+                Study materials
+            </h2>
+
+        </div>
+
+
+        <div
+            id="fileCount"
+            class="file-count"
+        >
+            0 files
+        </div>
+
+    </div>
+
+
+    <!-- SEARCH -->
+
+    <div class="search-box reveal">
+
+        <span class="search-icon">
+            ⌕
+        </span>
+
+
+        <input
+            id="searchInput"
+            type="search"
+            placeholder="Search your notes..."
+            autocomplete="off"
+            aria-label="Search study materials"
+        >
+
+
+        <kbd>
+            ⌘ K
+        </kbd>
+
+
+        <button
+            id="clearSearch"
+            class="clear-search"
+            type="button"
+            aria-label="Clear search"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <!-- CATEGORIES -->
+
+    <div
+        id="categories"
+        class="categories reveal"
+    >
+
+        <button
+            class="category active"
+            data-category="all"
+            type="button"
+        >
+            All
+        </button>
+
+
+        <button
+            class="category"
+            data-category="pdf"
+            type="button"
+        >
+            <span>📕</span>
+            PDF
+        </button>
+
+
+        <button
+            class="category"
+            data-category="docx"
+            type="button"
+        >
+            <span>📘</span>
+            DOCX
+        </button>
+
+
+        <button
+            class="category"
+            data-category="xlsx"
+            type="button"
+        >
+            <span>📊</span>
+            XLSX
+        </button>
+
+
+        <button
+            class="category"
+            data-category="pptx"
+            type="button"
+        >
+            <span>📽️</span>
+            PPTX
+        </button>
+
+
+        <button
+            class="category"
+            data-category="other"
+            type="button"
+        >
+            <span>📎</span>
+            Other
+        </button>
+
+    </div>
+
+
+    <!-- LOADING -->
+
+    <div
+        id="loading"
+        class="loading"
+    >
+
+        <div class="loading-book">
+
+            <span></span>
+            <span></span>
+
+        </div>
+
+        <p>
+            Loading your library...
+        </p>
+
+    </div>
+
+
+    <!-- FILE GRID -->
+
+    <div
+        id="fileGrid"
+        class="file-grid"
+    ></div>
+
+
+    <!-- EMPTY -->
+
+    <div
+        id="emptyState"
+        class="empty-state hidden"
+    >
+
+        <div class="empty-icon">
+            ✦
+        </div>
+
+        <h3>
+            No notes found
+        </h3>
+
+        <p>
+            Try another search or category.
+        </p>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div
+        id="errorState"
+        class="error-state hidden"
+    >
+
+        <div class="error-icon">
+            ⚠
+        </div>
+
+        <h3>
+            Something went wrong
+        </h3>
+
+        <p>
+            Could not load your library.
+        </p>
+
+        <button
+            class="download-button"
+            type="button"
+            onclick="location.reload()"
+        >
+            TRY AGAIN
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section
+    id="contact"
+    class="contact-section"
+>
+
+    <div class="contact-card reveal">
+
+        <div class="contact-small">
+            ✦ GET IN TOUCH
+        </div>
+
+
+        <h2>
+
+            Let's stay
+
+            <span>
+                connected.
+            </span>
+
+        </h2>
+
+
+        <p>
+
+            Follow ADDY for updates,
+            study resources and more.
+
+        </p>
+
+
+        <div class="social-links">
+
+            <a
+                href="https://www.instagram.com/noturtyp.addy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social instagram"
+            >
+
+                <span>◎</span>
+
+                Instagram
+
+                <small>
+                    @noturtyp.addy
+                </small>
+
+            </a>
+
+
+            <a
+                href="https://www.tiktok.com/@noturtyp.addy"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social tiktok"
+            >
+
+                <span>♪</span>
+
+                TikTok
+
+                <small>
+                    @noturtyp.addy
+                </small>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    <div class="footer-inner">
+
+        <div class="footer-brand">
+
+            ADDY<span>.</span>
+
+        </div>
+
+
+        <p>
+
+            Your little corner of the internet
+            for beautiful study notes.
+
+        </p>
+
+
+        <div class="footer-divider"></div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © 2026 ADDY — Made for learning.
+            </span>
+
+
+            <a href="admin.html">
+                Admin →
+            </a>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- SUPABASE -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- CONFIG -->
+
+<script src="config.js"></script>
+
+
+<!-- APP -->
+
+<script src="app.js"></script>
+
 
 </body>
+
 </html>
