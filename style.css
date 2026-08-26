@@ -1,9 +1,20 @@
 /* =========================================================
-   ADDY FINAL FIXES
+   ADDY FINAL FIXES + MAROON THEME
 ========================================================= */
 
+:root {
+    --maroon: #791A31;
+    --maroon-dark: #76002A;
+    --crimson: #BB284E;
+    --red: #A62346;
+    --red-dark: #9C2141;
+    --pink: #DB3550;
+}
 
-/* FILE INFO */
+
+/* =========================================================
+   FILE INFO
+========================================================= */
 
 .file-info {
     display: flex;
@@ -12,7 +23,9 @@
 }
 
 
-/* DISABLED DOWNLOAD BUTTON */
+/* =========================================================
+   DISABLED DOWNLOAD BUTTON
+========================================================= */
 
 .download-button:disabled {
     opacity: .45;
@@ -21,7 +34,9 @@
 }
 
 
-/* CLEAR SEARCH */
+/* =========================================================
+   CLEAR SEARCH
+========================================================= */
 
 .clear-search {
     align-items: center;
@@ -29,7 +44,9 @@
 }
 
 
-/* ERROR BUTTON */
+/* =========================================================
+   ERROR BUTTON
+========================================================= */
 
 .error-state .download-button {
     max-width: 180px;
@@ -37,7 +54,9 @@
 }
 
 
-/* ADMIN FILE SMALL INFO */
+/* =========================================================
+   ADMIN FILE SMALL INFO
+========================================================= */
 
 .admin-file-info small {
     display: block;
@@ -48,7 +67,9 @@
 }
 
 
-/* BETTER FILE CARD MOBILE */
+/* =========================================================
+   BETTER FILE CARD MOBILE
+========================================================= */
 
 @media (max-width: 600px) {
 
@@ -63,7 +84,9 @@
 }
 
 
-/* SAFER TEXT WRAPPING */
+/* =========================================================
+   SAFER TEXT WRAPPING
+========================================================= */
 
 .file-card h3,
 .admin-file-info strong {
@@ -71,14 +94,48 @@
 }
 
 
-/* BETTER BUTTON CURSOR */
+/* =========================================================
+   BETTER BUTTON CURSOR
+========================================================= */
 
 button {
     -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
 }
 
 
-/* REDUCED MOTION */
+/* =========================================================
+   MAROON BUTTON POLISH
+========================================================= */
+
+.btn-primary,
+.category.active,
+.download-button:hover {
+    background:
+        linear-gradient(
+            135deg,
+            var(--maroon-dark),
+            var(--crimson),
+            var(--pink)
+        );
+}
+
+
+/* =========================================================
+   MAROON GLOW
+========================================================= */
+
+.btn-primary:hover,
+.category.active,
+.download-button:hover {
+    box-shadow:
+        0 10px 30px rgba(219, 53, 80, .25);
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
 
