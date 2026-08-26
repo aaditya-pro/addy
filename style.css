@@ -147,3 +147,101 @@ button {
     }
 
 }
+/* =========================================================
+   ADDY MAROON THEME — FORCE
+========================================================= */
+
+body {
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(219, 53, 80, 0.20),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 85% 45%,
+            rgba(187, 40, 78, 0.18),
+            transparent 30%
+        ),
+        #791A31 !important;
+
+    color: #FEFEFE;
+}
+
+.navbar {
+    background: rgba(64, 10, 29, 0.88) !important;
+}
+
+.notebook-cover {
+    background:
+        linear-gradient(
+            135deg,
+            #76002A,
+            #A62346 48%,
+            #791A31
+        ) !important;
+}
+
+.btn-primary {
+    background:
+        linear-gradient(
+            135deg,
+            #76002A,
+            #BB284E,
+            #DB3550
+        ) !important;
+}
+
+.category.active {
+    background:
+        linear-gradient(
+            135deg,
+            #76002A,
+            #DB3550
+        ) !important;
+}
+
+.download-button:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #A62346,
+            #DB3550
+        ) !important;
+}
+
+.file-card {
+    background:
+        linear-gradient(
+            145deg,
+            rgba(121, 26, 49, 0.32),
+            rgba(42, 7, 19, 0.38)
+        ) !important;
+}
+
+.search-box {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(121, 26, 49, 0.35),
+            rgba(42, 7, 19, 0.30)
+        ) !important;
+}
+
+.contact-card {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(118, 0, 42, 0.90),
+            rgba(166, 35, 70, 0.65)
+        ) !important;
+}
+
+.brand-icon {
+    background:
+        linear-gradient(
+            135deg,
+            #DB3550,
+            #BB284E
+        ) !important;
+}
