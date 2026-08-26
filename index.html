@@ -1,349 +1,455 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ADDY — Digital Study Library</title>
+  <title>ADDY — Digital Study Library</title>
 
-<meta name="description" content="ADDY — Digital study notes and resources.">
+  <meta
+    name="description"
+    content="ADDY — Your personal digital notebook for notes, presentations, documents and study resources."
+  >
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link rel="stylesheet" href="style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="glow glow-one"></div>
-<div class="glow glow-two"></div>
+  <!-- BACKGROUND -->
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
 
-<header class="navbar">
+  <div class="particles" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
 
-<a href="index.html" class="brand">
-<span class="brand-mark"></span>
-<span>ADDY</span>
-</a>
 
-<nav class="nav-links">
-<a href="#library">Library</a>
-<a href="#categories">Categories</a>
-<a href="#contact">Contact</a>
-<a href="admin.html" class="admin-link">Admin</a>
-</nav>
+  <!-- NAVIGATION -->
+  <header class="navbar">
 
-<button class="mobile-menu" id="mobileMenu">
-☰
-</button>
+    <a href="index.html" class="brand">
+      <span class="brand-icon"></span>
+      <span>ADDY</span>
+    </a>
 
-</header>
+    <nav class="nav-links">
+      <a href="#library">Library</a>
+      <a href="#categories">Categories</a>
+      <a href="#contact">Contact</a>
+      <a href="admin.html" class="admin-link">Admin</a>
+    </nav>
 
+    <button class="mobile-menu" aria-label="Open menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-<main>
+  </header>
 
-<section class="hero">
 
-<div class="hero-content">
+  <!-- HERO -->
+  <main>
 
-<div class="hero-tagline">
-<span></span>
-DIGITAL STUDY LIBRARY
-</div>
+    <section class="hero">
 
-<h1>
-Study.
-<br>
-<span>Save.</span>
-<br>
-Download.
-</h1>
+      <div class="hero-container">
 
-<p class="hero-subtext">
-Your personal digital notebook for notes,
-presentations, documents and everything
-you need to learn.
-</p>
+        <!-- LEFT -->
+        <div class="hero-content reveal">
 
-<div class="hero-actions">
+          <div class="hero-tagline">
+            <span class="tagline-dot"></span>
+            DIGITAL STUDY LIBRARY
+          </div>
 
-<a href="#library" class="btn btn-primary">
-Explore Library ↓
-</a>
+          <h1 class="hero-heading">
+            Study.
+            <span>Save.</span>
+            Download.
+          </h1>
 
-<a href="#categories" class="btn btn-secondary">
-View Categories
-</a>
+          <p class="hero-subtext">
+            Your personal digital notebook for notes,
+            presentations, documents and everything you
+            need to learn.
+          </p>
 
-</div>
+          <div class="hero-actions">
 
-<div class="hero-meta">
-✦ Simple&nbsp;&nbsp;•&nbsp;&nbsp;Beautiful&nbsp;&nbsp;•&nbsp;&nbsp;Made for learning
-</div>
+            <a href="#library" class="btn btn-primary">
+              Explore Library
+              <span>↓</span>
+            </a>
 
-</div>
+            <a href="#categories" class="btn btn-secondary">
+              View Categories
+            </a>
 
+          </div>
 
-<div class="hero-visual">
+          <div class="hero-meta">
+            ✦ Simple
+            <span>•</span>
+            Beautiful
+            <span>•</span>
+            Made for learning
+          </div>
 
-<div class="notebook">
+        </div>
 
-<div class="notebook-cover">
 
-<div class="cover-grid"></div>
+        <!-- NOTEBOOK -->
+        <div class="hero-visual reveal">
 
-<div class="cover-top">
-<span>ADDY</span>
-<span>2026</span>
-</div>
+          <div class="notebook">
 
-<div class="cover-title">
+            <div class="notebook-cover">
 
-<small>MY DIGITAL</small>
+              <div class="cover-grid"></div>
 
-<strong>NOTE</strong>
+              <div class="cover-top">
+                <span>ADDY</span>
+                <span>2026</span>
+              </div>
 
-<em>book.</em>
+              <div class="cover-title">
 
-<div class="hand-line"></div>
+                <small>MY DIGITAL</small>
 
-<p>learn • create • remember</p>
+                <strong>NOTE</strong>
 
-</div>
+                <em>book.</em>
 
-<div class="cover-bottom">
-<span>STUDY EDITION</span>
-<span>01</span>
-</div>
+                <div class="hand-line"></div>
 
-</div>
+                <p>
+                  learn • create • remember
+                </p>
 
+              </div>
 
-<div class="notebook-page">
+              <div class="cover-bottom">
+                <span>STUDY EDITION</span>
+                <span>01</span>
+              </div>
 
-<div class="paper-hole hole-one"></div>
-<div class="paper-hole hole-two"></div>
-<div class="paper-hole hole-three"></div>
+            </div>
 
-<div class="paper-content">
 
-<span>today's notes ✦</span>
+            <div class="notebook-page">
 
-<h3>
-Everything worth learning
-in one place.
-</h3>
+              <div class="paper-hole hole-one"></div>
+              <div class="paper-hole hole-two"></div>
+              <div class="paper-hole hole-three"></div>
 
-<div class="paper-lines"></div>
+              <div class="paper-content">
 
-<div class="paper-signature">
-— ADDY
-</div>
+                <span>today's notes ✦</span>
 
-</div>
+                <h3>
+                  Everything worth learning
+                  in one place.
+                </h3>
 
-</div>
+                <div class="paper-lines"></div>
 
-</div>
+                <div class="paper-signature">
+                  — ADDY
+                </div>
 
-</div>
+              </div>
 
-</section>
+            </div>
 
+          </div>
 
-<section id="library" class="library-section">
+        </div>
 
-<div class="section-heading">
+      </div>
 
-<div>
-<span class="section-label">YOUR LIBRARY</span>
-<h2>Study materials</h2>
-</div>
+    </section>
 
-<div id="fileCount" class="file-count">
-0 files
-</div>
 
-</div>
+    <!-- LIBRARY -->
+    <section id="library" class="library-section">
 
+      <div class="section-heading reveal">
 
-<div class="search-box">
+        <div>
+          <span class="section-label">
+            YOUR LIBRARY
+          </span>
 
-<span class="search-icon">⌕</span>
+          <h2>
+            Study materials
+          </h2>
+        </div>
 
-<input
-id="searchInput"
-type="search"
-placeholder="Search your notes..."
-autocomplete="off"
->
+        <div id="fileCount" class="file-count">
+          0 files
+        </div>
 
-<button id="clearSearch" class="clear-search">
-×
-</button>
+      </div>
 
-<kbd>⌘ K</kbd>
 
-</div>
+      <!-- SEARCH -->
+      <div class="search-box reveal">
 
+        <span class="search-icon">⌕</span>
 
-<div id="categories" class="categories">
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search your notes..."
+          autocomplete="off"
+        >
 
-<button class="category active" data-category="all">
-All
-</button>
+        <kbd>⌘ K</kbd>
 
-<button class="category" data-category="pdf">
-📕 PDF
-</button>
+        <button
+          id="clearSearch"
+          class="clear-search"
+          aria-label="Clear search"
+        >
+          ×
+        </button>
 
-<button class="category" data-category="docx">
-📘 DOCX
-</button>
+      </div>
 
-<button class="category" data-category="xlsx">
-📊 XLSX
-</button>
 
-<button class="category" data-category="pptx">
-📽️ PPTX
-</button>
+      <!-- CATEGORIES -->
+      <div
+        id="categories"
+        class="categories reveal"
+      >
 
-<button class="category" data-category="other">
-📎 Other
-</button>
+        <button
+          class="category active"
+          data-category="all"
+        >
+          All
+        </button>
 
-</div>
+        <button
+          class="category"
+          data-category="pdf"
+        >
+          <span>📕</span>
+          PDF
+        </button>
 
+        <button
+          class="category"
+          data-category="docx"
+        >
+          <span>📘</span>
+          DOCX
+        </button>
 
-<div id="loading" class="loading">
+        <button
+          class="category"
+          data-category="xlsx"
+        >
+          <span>📊</span>
+          XLSX
+        </button>
 
-<div class="loading-book">
-<span></span>
-<span></span>
-</div>
+        <button
+          class="category"
+          data-category="pptx"
+        >
+          <span>📽️</span>
+          PPTX
+        </button>
 
-<p>Opening your notebook...</p>
+        <button
+          class="category"
+          data-category="other"
+        >
+          <span>📎</span>
+          Other
+        </button>
 
-</div>
+      </div>
 
 
-<div id="errorState" class="error-state hidden">
+      <!-- LOADING -->
+      <div
+        id="loading"
+        class="loading"
+      >
 
-<div class="empty-icon">⚠</div>
+        <div class="loading-book">
+          <span></span>
+          <span></span>
+        </div>
 
-<h3>Something went wrong</h3>
+        <p>
+          Loading your library...
+        </p>
 
-<p id="errorMessage">
-Unable to load your library.
-</p>
+      </div>
 
-<button onclick="loadFiles()" class="btn btn-primary">
-Try Again
-</button>
 
-</div>
+      <!-- FILE GRID -->
+      <div
+        id="fileGrid"
+        class="file-grid"
+      ></div>
 
 
-<div id="fileGrid" class="file-grid"></div>
+      <!-- EMPTY -->
+      <div
+        id="emptyState"
+        class="empty-state hidden"
+      >
 
+        <div class="empty-icon">
+          ✦
+        </div>
 
-<div id="emptyState" class="empty-state hidden">
+        <h3>
+          No notes found
+        </h3>
 
-<div class="empty-icon">
-✦
-</div>
+        <p>
+          Try another search or category.
+        </p>
 
-<h3>No notes found</h3>
+      </div>
 
-<p>
-Try another search or category.
-</p>
 
-</div>
+      <!-- ERROR -->
+      <div
+        id="errorState"
+        class="error-state hidden"
+      >
 
-</section>
+        <div class="error-icon">
+          ⚠
+        </div>
 
+        <h3>
+          Something went wrong
+        </h3>
 
-<section id="contact" class="contact-section">
+        <p>
+          Supabase configuration not found.
+        </p>
 
-<div class="contact-card">
+      </div>
 
-<span class="section-label">
-GET IN TOUCH
-</span>
+    </section>
 
-<h2>
-Let's connect.
-</h2>
 
-<p>
-Follow ADDY and stay connected.
-</p>
+    <!-- CONTACT -->
+    <section id="contact" class="contact-section">
 
-<div class="social-links">
+      <div class="contact-card reveal">
 
-<a
-href="https://www.instagram.com/noturtyp.addy/"
-target="_blank"
-rel="noopener noreferrer"
->
-◎ Instagram
-<strong>@noturtyp.addy</strong>
-</a>
+        <div class="contact-small">
+          ✦ GET IN TOUCH
+        </div>
 
-<a
-href="https://www.tiktok.com/@noturtyp.addy"
-target="_blank"
-rel="noopener noreferrer"
->
-♪ TikTok
-<strong>@noturtyp.addy</strong>
-</a>
+        <h2>
+          Let's stay
+          <span>connected.</span>
+        </h2>
 
-</div>
+        <p>
+          Follow ADDY for updates, study resources
+          and more.
+        </p>
 
-</div>
+        <div class="social-links">
 
-</section>
+          <a
+            href="https://www.instagram.com/noturtyp.addy/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social instagram"
+          >
+            <span>◎</span>
+            Instagram
+            <small>@noturtyp.addy</small>
+          </a>
 
-</main>
+          <a
+            href="https://www.tiktok.com/@noturtyp.addy"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="social tiktok"
+          >
+            <span>♪</span>
+            TikTok
+            <small>@noturtyp.addy</small>
+          </a>
 
+        </div>
 
-<footer>
+      </div>
 
-<div class="footer-inner">
+    </section>
 
-<div class="footer-brand">
-ADDY<span>.</span>
-</div>
+  </main>
 
-<p>
-Your little corner of the internet for beautiful study notes.
-</p>
 
-<div class="footer-divider"></div>
+  <!-- FOOTER -->
+  <footer>
 
-<div class="footer-bottom">
+    <div class="footer-inner">
 
-<span>
-© 2026 ADDY — Made for learning.
-</span>
+      <div class="footer-brand">
+        ADDY<span>.</span>
+      </div>
 
-<a href="admin.html">
-Admin →
-</a>
+      <p>
+        Your little corner of the internet
+        for beautiful study notes.
+      </p>
 
-</div>
+      <div class="footer-divider"></div>
 
-</div>
+      <div class="footer-bottom">
 
-</footer>
+        <span>
+          © 2026 ADDY — Made for learning.
+        </span>
 
+        <a href="admin.html">
+          Admin →
+        </a>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="app.js"></script>
+      </div>
+
+    </div>
+
+  </footer>
+
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="config.js"></script>
+
+  <script src="app.js"></script>
 
 </body>
 </html>
