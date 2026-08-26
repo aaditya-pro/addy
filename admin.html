@@ -1,444 +1,406 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<title>ADDY — Admin</title>
 
-    <title>ADDY — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+<link rel="stylesheet" href="style.css">
 
-    <link rel="stylesheet" href="style.css">
+<style>
+
+.admin-page {
+width:min(900px,90%);
+margin:auto;
+padding:90px 0;
+}
+
+.admin-card {
+padding:35px;
+border:1px solid rgba(255,255,255,.12);
+border-radius:25px;
+background:rgba(35,4,14,.75);
+backdrop-filter:blur(20px);
+box-shadow:0 25px 70px rgba(20,0,8,.3);
+margin-bottom:20px;
+}
+
+.admin-card h1 {
+font-size:42px;
+margin-bottom:8px;
+}
+
+.admin-card p {
+color:#c99aa8;
+font-size:13px;
+line-height:1.7;
+}
+
+.upload-area {
+margin-top:25px;
+padding:35px;
+border:1px dashed rgba(101,181,255,.4);
+border-radius:18px;
+text-align:center;
+background:rgba(101,181,255,.04);
+}
+
+#fileInput {
+display:none;
+}
+
+.file-label {
+display:inline-flex;
+padding:14px 20px;
+border-radius:13px;
+background:#70bfff;
+color:#26040d;
+font-weight:800;
+font-size:13px;
+cursor:pointer;
+}
+
+#uploadStatus {
+margin-top:18px;
+color:#70bfff;
+font-size:13px;
+}
+
+.admin-files {
+display:grid;
+gap:12px;
+margin-top:20px;
+}
+
+.admin-file {
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:15px;
+padding:16px;
+border:1px solid rgba(255,255,255,.1);
+border-radius:15px;
+background:rgba(255,255,255,.035);
+}
+
+.admin-file-name {
+font-size:13px;
+word-break:break-word;
+}
+
+.delete-btn {
+border:1px solid rgba(219,53,80,.4);
+background:rgba(219,53,80,.08);
+color:#ff91a6;
+border-radius:10px;
+padding:9px 13px;
+cursor:pointer;
+font-weight:700;
+}
+
+.delete-btn:hover {
+background:#DB3550;
+color:white;
+}
+
+.back-link {
+display:inline-block;
+margin-bottom:30px;
+color:#70bfff;
+text-decoration:none;
+font-size:13px;
+}
+
+</style>
 
 </head>
 
+<body>
 
-<body class="admin-page">
+<div class="glow glow-one"></div>
+<div class="glow glow-two"></div>
 
-    <div class="ambient ambient-one"></div>
-    <div class="ambient ambient-two"></div>
+<header class="navbar">
 
+<a href="index.html" class="brand">
+<span class="brand-mark"></span>
+<span>ADDY</span>
+</a>
 
-    <!-- NAV -->
+<a href="index.html" class="admin-link">
+← Library
+</a>
 
-    <header class="navbar">
+</header>
 
-        <a href="index.html" class="brand">
-            <span class="brand-mark">A</span>
-            <span>ADDY</span>
-        </a>
 
-        <a
-            href="index.html"
-            class="back-link"
-        >
-            ← View Website
-        </a>
+<main class="admin-page">
 
-    </header>
+<a href="index.html" class="back-link">
+← Back to ADDY
+</a>
 
 
-    <main class="admin-container">
+<div class="admin-card">
 
+<span class="section-label">
+ADMIN DASHBOARD
+</span>
 
-        <!-- LOGIN -->
+<h1>
+Manage Notes.
+</h1>
 
-        <section
-            id="loginSection"
-            class="login-wrapper"
-        >
+<p>
+Upload study materials to your
+ADDY digital library.
+</p>
 
-            <div class="login-paper">
 
-                <div class="paper-holes">
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                </div>
+<div class="upload-area">
 
-                <div class="login-content">
+<label for="fileInput" class="file-label">
+＋ Choose Files
+</label>
 
-                    <div class="admin-symbol">
-                        🔐
-                    </div>
+<input
+id="fileInput"
+type="file"
+multiple
+accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+>
 
-                    <span class="section-label">
-                        PRIVATE AREA
-                    </span>
+<div id="uploadStatus"></div>
 
-                    <h1>
-                        Welcome back.
-                    </h1>
+</div>
 
-                    <p>
-                        Sign in to manage your
-                        ADDY library.
-                    </p>
+</div>
 
 
-                    <form id="loginForm">
+<div class="admin-card">
 
-                        <label for="email">
-                            Email
-                        </label>
+<span class="section-label">
+YOUR FILES
+</span>
 
-                        <input
-                            id="email"
-                            type="email"
-                            placeholder="you@example.com"
-                            required
-                        >
+<h2 style="margin-top:10px;">
+Library Files
+</h2>
 
+<div id="adminFiles" class="admin-files">
 
-                        <label for="password">
-                            Password
-                        </label>
+<p>
+Loading files...
+</p>
 
-                        <input
-                            id="password"
-                            type="password"
-                            placeholder="Your password"
-                            required
-                        >
+</div>
 
+</div>
 
-                        <button
-                            type="submit"
-                            class="blue-button"
-                        >
-                            Sign in
-                            <span>→</span>
-                        </button>
+</main>
 
 
-                        <p
-                            id="loginMessage"
-                            class="form-message"
-                        ></p>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 
-                    </form>
+<script>
 
-                </div>
+const supabaseAdmin = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
 
-            </div>
+const fileInput =
+document.getElementById("fileInput");
 
-        </section>
+const uploadStatus =
+document.getElementById("uploadStatus");
 
+const adminFiles =
+document.getElementById("adminFiles");
 
-        <!-- DASHBOARD -->
 
-        <section
-            id="dashboard"
-            class="dashboard hidden"
-        >
+function escapeHTML(value) {
 
+return String(value)
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
 
-            <div class="dashboard-top">
+}
 
-                <div>
 
-                    <span class="section-label">
-                        ADDY ADMIN
-                    </span>
+/* LOAD ADMIN FILES */
 
-                    <h1>
-                        Manage your library.
-                    </h1>
+async function loadAdminFiles() {
 
-                    <p>
-                        Upload and organize your study
-                        materials.
-                    </p>
+adminFiles.innerHTML =
+"<p>Loading files...</p>";
 
-                </div>
+const { data, error } =
+await supabaseAdmin
+.storage
+.from(SUPABASE_BUCKET)
+.list("", {
+limit:100,
+offset:0,
+sortBy:{
+column:"created_at",
+order:"desc"
+}
+});
 
+if(error) {
 
-                <button
-                    id="logoutButton"
-                    class="logout-button"
-                >
-                    Logout
-                </button>
+adminFiles.innerHTML =
+`<p style="color:#ff91a6;">
+${escapeHTML(error.message)}
+</p>`;
 
-            </div>
+return;
 
+}
 
-            <!-- UPLOAD -->
+if(!data || data.length === 0) {
 
-            <div class="admin-grid">
+adminFiles.innerHTML =
+"<p>No files uploaded yet.</p>";
 
-                <section class="admin-paper">
+return;
 
-                    <div class="paper-holes">
-                        <i></i>
-                        <i></i>
-                        <i></i>
-                    </div>
+}
 
+adminFiles.innerHTML = "";
 
-                    <div class="admin-paper-content">
+data
+.filter(file => file.name)
+.forEach(file => {
 
-                        <div class="paper-title">
+const row =
+document.createElement("div");
 
-                            <span class="paper-number">
-                                01
-                            </span>
+row.className = "admin-file";
 
-                            <div>
-                                <span class="section-label">
-                                    NEW MATERIAL
-                                </span>
+row.innerHTML = `
 
-                                <h2>
-                                    Add a file
-                                </h2>
-                            </div>
+<div class="admin-file-name">
+📎 ${escapeHTML(file.name)}
+</div>
 
-                        </div>
+<button
+class="delete-btn"
+data-name="${escapeHTML(file.name)}"
+>
+Delete
+</button>
 
+`;
 
-                        <form id="uploadForm">
+row
+.querySelector(".delete-btn")
+.addEventListener("click", () =>
+deleteFile(file.name)
+);
 
-                            <label for="fileTitle">
-                                File title
-                            </label>
+adminFiles.appendChild(row);
 
-                            <input
-                                id="fileTitle"
-                                type="text"
-                                placeholder="e.g. Class 12 Physics Notes"
-                                required
-                            >
+});
 
+}
 
-                            <label for="fileCategory">
-                                Category
-                            </label>
 
-                            <select id="fileCategory">
+/* UPLOAD */
 
-                                <option value="PDF">
-                                    PDF
-                                </option>
+fileInput.addEventListener("change", async () => {
 
-                                <option value="DOCX">
-                                    DOCX
-                                </option>
+const files =
+Array.from(fileInput.files);
 
-                                <option value="XLSX">
-                                    XLSX
-                                </option>
+if(!files.length) return;
 
-                                <option value="PPTX">
-                                    PPTX
-                                </option>
+uploadStatus.textContent =
+"Uploading...";
 
-                                <option value="Other">
-                                    Other
-                                </option>
+for(const file of files) {
 
-                            </select>
+try {
 
+const { error } =
+await supabaseAdmin
+.storage
+.from(SUPABASE_BUCKET)
+.upload(file.name, file, {
+cacheControl:"3600",
+upsert:false
+});
 
-                            <label for="fileDescription">
-                                Description
-                            </label>
+if(error) {
+throw error;
+}
 
-                            <textarea
-                                id="fileDescription"
-                                rows="4"
-                                placeholder="A short description..."
-                            ></textarea>
+} catch(error) {
 
+uploadStatus.textContent =
+`Error: ${error.message}`;
 
-                            <label>
-                                Choose file
-                            </label>
+return;
 
+}
 
-                            <label
-                                for="fileInput"
-                                class="drop-zone"
-                            >
+}
 
-                                <div class="upload-icon">
-                                    ↑
-                                </div>
+uploadStatus.textContent =
+"✓ Upload completed.";
 
-                                <strong>
-                                    Choose a file
-                                </strong>
+fileInput.value = "";
 
-                                <span>
-                                    PDF, DOCX, XLSX, PPTX
-                                </span>
+loadAdminFiles();
 
-                            </label>
+});
 
 
-                            <input
-                                id="fileInput"
-                                type="file"
-                                hidden
-                            >
+/* DELETE */
 
+async function deleteFile(fileName) {
 
-                            <div
-                                id="selectedFile"
-                                class="selected-file"
-                            >
-                                No file selected
-                            </div>
+const confirmed =
+confirm(
+`Delete "${fileName}" from the library?`
+);
 
+if(!confirmed) return;
 
-                            <div class="progress">
-                                <div
-                                    id="progressBar"
-                                    class="progress-bar"
-                                ></div>
-                            </div>
+const { error } =
+await supabaseAdmin
+.storage
+.from(SUPABASE_BUCKET)
+.remove([fileName]);
 
+if(error) {
 
-                            <button
-                                id="uploadButton"
-                                type="submit"
-                                class="blue-button"
-                            >
-                                Upload to ADDY
-                                <span>↑</span>
-                            </button>
+alert(
+"Delete failed: " + error.message
+);
 
+return;
 
-                            <p
-                                id="uploadMessage"
-                                class="form-message"
-                            ></p>
+}
 
-                        </form>
+loadAdminFiles();
 
-                    </div>
+}
 
-                </section>
 
+loadAdminFiles();
 
-                <!-- INFO CARD -->
-
-                <aside class="admin-side">
-
-                    <div class="stats-card">
-
-                        <span class="section-label">
-                            LIBRARY
-                        </span>
-
-                        <strong id="adminFileCount">
-                            0
-                        </strong>
-
-                        <span>
-                            uploaded files
-                        </span>
-
-                    </div>
-
-
-                    <div class="hand-note">
-
-                        <span>
-                            remember
-                        </span>
-
-                        <p>
-                            Keep your notes organized.
-                            Future you will thank you. ✦
-                        </p>
-
-                        <small>
-                            — ADDY
-                        </small>
-
-                    </div>
-
-                </aside>
-
-            </div>
-
-
-            <!-- FILE MANAGEMENT -->
-
-            <section class="files-paper">
-
-                <div class="paper-holes">
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                </div>
-
-
-                <div class="files-paper-content">
-
-                    <div class="paper-title">
-
-                        <span class="paper-number">
-                            02
-                        </span>
-
-                        <div>
-
-                            <span class="section-label">
-                                LIBRARY
-                            </span>
-
-                            <h2>
-                                Your files
-                            </h2>
-
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        id="adminFileList"
-                        class="admin-file-list"
-                    ></div>
-
-                </div>
-
-            </section>
-
-        </section>
-
-    </main>
-
-
-    <footer>
-
-        <div class="footer-logo">
-            ADDY<span>.</span>
-        </div>
-
-        <small>
-            Private admin area
-        </small>
-
-    </footer>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="config.js"></script>
-
-    <script src="admin.js"></script>
+</script>
 
 </body>
 </html>
