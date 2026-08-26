@@ -1,47 +1,79 @@
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+/* =========================================================
+   ADDY ADMIN PANEL
+========================================================= */
 
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
 const loginSection =
-    document.getElementById("loginSection");
+    document.getElementById(
+        "loginSection"
+    );
 
 const dashboard =
-    document.getElementById("dashboard");
+    document.getElementById(
+        "dashboard"
+    );
 
 const loginForm =
-    document.getElementById("loginForm");
+    document.getElementById(
+        "loginForm"
+    );
 
 const loginMessage =
-    document.getElementById("loginMessage");
+    document.getElementById(
+        "loginMessage"
+    );
 
 const uploadForm =
-    document.getElementById("uploadForm");
+    document.getElementById(
+        "uploadForm"
+    );
 
 const uploadMessage =
-    document.getElementById("uploadMessage");
+    document.getElementById(
+        "uploadMessage"
+    );
 
 const uploadButton =
-    document.getElementById("uploadButton");
+    document.getElementById(
+        "uploadButton"
+    );
 
 const fileInput =
-    document.getElementById("fileInput");
+    document.getElementById(
+        "fileInput"
+    );
 
 const selectedFile =
-    document.getElementById("selectedFile");
+    document.getElementById(
+        "selectedFile"
+    );
 
 const adminFileList =
-    document.getElementById("adminFileList");
+    document.getElementById(
+        "adminFileList"
+    );
 
 const adminFileCount =
-    document.getElementById("adminFileCount");
+    document.getElementById(
+        "adminFileCount"
+    );
 
 const logoutButton =
-    document.getElementById("logoutButton");
+    document.getElementById(
+        "logoutButton"
+    );
 
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024;
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+const MAX_FILE_SIZE =
+    25 * 1024 * 1024;
 
 
 const ALLOWED_EXTENSIONS = [
@@ -57,82 +89,43 @@ const ALLOWED_EXTENSIONS = [
 ];
 
 
-function formatSize(bytes) {
+/* =========================================================
+   LOGIN
+========================================================= */
 
-    if (!bytes) return "Unknown";
-
-    const units = ["B", "KB", "MB", "GB"];
-
-    let size = bytes;
-    let index = 0;
-
-    while (
-        size >= 1024 &&
-        index < units.length - 1
-    ) {
-        size /= 1024;
-        index++;
-    }
-
-    return `${size.toFixed(index ? 1 : 0)} ${units[index]}`;
-}
-
-
-function escapeHtml(value) {
-
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-
-function getExtension(filename) {
-
-    return filename
-        .split(".")
-        .pop()
-        .toLowerCase();
-}
-
-
-function createSafePath(filename) {
-
-    const extension = getExtension(filename);
-
-    const random =
-        crypto.randomUUID();
-
-    return `${random}.${extension}`;
-}
-
-
-/* LOGIN */
-
-loginForm.addEventListener(
+loginForm?.addEventListener(
     "submit",
     async event => {
 
         event.preventDefault();
+
 
         loginMessage.textContent =
             "Signing in...";
 
 
         const email =
-            document.getElementById("email").value.trim();
+            document
+                .getElementById("email")
+                .value
+                .trim();
+
 
         const password =
-            document.getElementById("password").value;
+            document
+                .getElementById("password")
+                .value;
 
 
-        const { error } =
-            await supabaseClient.auth.signInWithPassword({
-                email,
-                password
-            });
+        const {
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signInWithPassword({
+                    email,
+                    password
+                });
 
 
         if (error) {
@@ -141,10 +134,32 @@ loginForm.addEventListener(
                 error.message;
 
             return;
+
         }
 
 
-        loginMessage.textContent = "";
+        loginMessage.textContent =
+            "";
+
+
+        const isAdmin =
+            await checkAdmin();
+
+
+        if (!isAdmin) {
+
+            await supabaseClient
+                .auth
+                .signOut();
+
+
+            loginMessage.textContent =
+                "This account is not authorized as an admin.";
+
+            return;
+
+        }
+
 
         showDashboard();
 
@@ -152,51 +167,155 @@ loginForm.addEventListener(
 );
 
 
-/* CHECK SESSION */
+/* =========================================================
+   CHECK ADMIN
+========================================================= */
+
+async function checkAdmin() {
+
+    const {
+        data: {
+            user
+        }
+    } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+    if (!user) {
+
+        return false;
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("admin_users")
+            .select("user_id")
+            .eq(
+                "user_id",
+                user.id
+            )
+            .maybeSingle();
+
+
+    if (error) {
+
+        console.error(
+            "Admin check failed:",
+            error
+        );
+
+        return false;
+
+    }
+
+
+    return !!data;
+
+}
+
+
+/* =========================================================
+   SESSION
+========================================================= */
 
 async function checkSession() {
 
     const {
-        data: { session }
-    } = await supabaseClient.auth.getSession();
+        data: {
+            session
+        }
+    } =
+        await supabaseClient
+            .auth
+            .getSession();
 
 
-    if (session) {
+    if (!session) {
+
+        showLogin();
+
+        return;
+
+    }
+
+
+    const isAdmin =
+        await checkAdmin();
+
+
+    if (isAdmin) {
 
         showDashboard();
 
     } else {
 
+        await supabaseClient
+            .auth
+            .signOut();
+
+
         showLogin();
+
+        loginMessage.textContent =
+            "You do not have admin access.";
+
     }
+
 }
 
 
+/* =========================================================
+   UI
+========================================================= */
+
 function showLogin() {
 
-    loginSection.classList.remove("hidden");
+    loginSection?.classList.remove(
+        "hidden"
+    );
 
-    dashboard.classList.add("hidden");
+    dashboard?.classList.add(
+        "hidden"
+    );
+
 }
 
 
 function showDashboard() {
 
-    loginSection.classList.add("hidden");
+    loginSection?.classList.add(
+        "hidden"
+    );
 
-    dashboard.classList.remove("hidden");
+    dashboard?.classList.remove(
+        "hidden"
+    );
+
 
     loadAdminFiles();
+
 }
 
 
-/* LOGOUT */
+/* =========================================================
+   LOGOUT
+========================================================= */
 
-logoutButton.addEventListener(
+logoutButton?.addEventListener(
     "click",
     async () => {
 
-        await supabaseClient.auth.signOut();
+        await supabaseClient
+            .auth
+            .signOut();
+
 
         showLogin();
 
@@ -204,14 +323,17 @@ logoutButton.addEventListener(
 );
 
 
-/* FILE SELECT */
+/* =========================================================
+   FILE SELECT
+========================================================= */
 
-fileInput.addEventListener(
+fileInput?.addEventListener(
     "change",
     () => {
 
         const file =
-            fileInput.files[0];
+            fileInput.files?.[0];
+
 
         if (!file) {
 
@@ -219,41 +341,65 @@ fileInput.addEventListener(
                 "No file selected";
 
             return;
+
         }
 
 
         selectedFile.textContent =
-            `${file.name} • ${formatSize(file.size)}`;
+            `${file.name} • ${formatSize(
+                file.size
+            )}`;
+
     }
 );
 
 
-/* UPLOAD */
+/* =========================================================
+   UPLOAD
+========================================================= */
 
-uploadForm.addEventListener(
+uploadForm?.addEventListener(
     "submit",
     async event => {
 
         event.preventDefault();
 
-        uploadMessage.textContent = "";
+
+        uploadMessage.textContent =
+            "";
 
 
         const file =
-            fileInput.files[0];
+            fileInput.files?.[0];
+
 
         const title =
-            document.getElementById("fileTitle")
-                .value.trim();
+            document
+                .getElementById(
+                    "fileTitle"
+                )
+                .value
+                .trim();
+
 
         const category =
-            document.getElementById("fileCategory")
+            document
+                .getElementById(
+                    "fileCategory"
+                )
                 .value;
 
-        const description =
-            document.getElementById("fileDescription")
-                .value.trim();
 
+        const description =
+            document
+                .getElementById(
+                    "fileDescription"
+                )
+                .value
+                .trim();
+
+
+        /* VALIDATION */
 
         if (!file) {
 
@@ -261,28 +407,59 @@ uploadForm.addEventListener(
                 "Please choose a file.";
 
             return;
+
         }
 
 
-        if (file.size > MAX_FILE_SIZE) {
+        if (!title) {
+
+            uploadMessage.textContent =
+                "Please enter a title.";
+
+            return;
+
+        }
+
+
+        if (!category) {
+
+            uploadMessage.textContent =
+                "Please select a category.";
+
+            return;
+
+        }
+
+
+        if (
+            file.size >
+            MAX_FILE_SIZE
+        ) {
 
             uploadMessage.textContent =
                 "File is larger than 25 MB.";
 
             return;
+
         }
 
 
         const extension =
-            getExtension(file.name);
+            getExtension(
+                file.name
+            );
 
 
-        if (!ALLOWED_EXTENSIONS.includes(extension)) {
+        if (
+            !ALLOWED_EXTENSIONS
+                .includes(extension)
+        ) {
 
             uploadMessage.textContent =
                 "This file type is not allowed.";
 
             return;
+
         }
 
 
@@ -292,76 +469,116 @@ uploadForm.addEventListener(
             "Uploading...";
 
 
+        let filePath = null;
+
+
         try {
 
-            const {
-                data: { user }
-            } = await supabaseClient.auth.getUser();
+            /* VERIFY ADMIN */
+
+            const isAdmin =
+                await checkAdmin();
 
 
-            if (!user) {
+            if (!isAdmin) {
 
                 throw new Error(
-                    "Your session has expired. Please login again."
+                    "You are not authorized to upload files."
                 );
+
             }
 
 
-            const filePath =
-                createSafePath(file.name);
+            /* SAFE RANDOM FILE NAME */
+
+            filePath =
+                createSafePath(
+                    extension
+                );
 
 
-            /* Upload actual file */
+            /* UPLOAD STORAGE */
 
             const {
                 error: uploadError
-            } = await supabaseClient
-                .storage
-                .from(SUPABASE_BUCKET)
-                .upload(
-                    filePath,
-                    file,
-                    {
-                        cacheControl: "3600",
-                        upsert: false,
-                        contentType: file.type
-                    }
-                );
+            } =
+                await supabaseClient
+                    .storage
+                    .from(
+                        SUPABASE_BUCKET
+                    )
+                    .upload(
+                        filePath,
+                        file,
+                        {
+                            cacheControl:
+                                "3600",
+
+                            upsert:
+                                false,
+
+                            contentType:
+                                file.type ||
+                                "application/octet-stream"
+                        }
+                    );
 
 
             if (uploadError) {
 
                 throw uploadError;
+
             }
 
 
-            /* Save information in database */
+            /* DATABASE */
 
             const {
                 error: databaseError
-            } = await supabaseClient
-                .from("files")
-                .insert({
-                    title,
-                    description,
-                    category,
-                    file_name: file.name,
-                    file_path: filePath,
-                    file_type: file.type,
-                    file_size: file.size
-                });
+            } =
+                await supabaseClient
+                    .from("files")
+                    .insert({
+                        title:
+                            title,
+
+                        description:
+                            description,
+
+                        category:
+                            category,
+
+                        file_name:
+                            file.name,
+
+                        file_path:
+                            filePath,
+
+                        file_type:
+                            file.type ||
+                            "application/octet-stream",
+
+                        file_size:
+                            file.size
+                    });
 
 
             if (databaseError) {
 
-                /* Remove uploaded file if DB fails */
+                /* CLEANUP STORAGE */
 
                 await supabaseClient
                     .storage
-                    .from(SUPABASE_BUCKET)
-                    .remove([filePath]);
+                    .from(
+                        SUPABASE_BUCKET
+                    )
+                    .remove([
+                        filePath
+                    ]);
+
 
                 throw databaseError;
+
             }
 
 
@@ -370,6 +587,7 @@ uploadForm.addEventListener(
 
 
             uploadForm.reset();
+
 
             selectedFile.textContent =
                 "No file selected";
@@ -380,56 +598,98 @@ uploadForm.addEventListener(
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Upload error:",
+                error
+            );
+
 
             uploadMessage.textContent =
-                `Upload failed: ${error.message}`;
+                `Upload failed: ${
+                    error.message
+                }`;
 
         } finally {
 
-            uploadButton.disabled = false;
+            uploadButton.disabled =
+                false;
+
 
             uploadButton.textContent =
                 "Upload File";
+
         }
 
     }
 );
 
 
-/* ADMIN FILE LIST */
+/* =========================================================
+   LOAD ADMIN FILES
+========================================================= */
 
 async function loadAdminFiles() {
+
+    adminFileList.innerHTML = `
+        <div class="loading">
+            Loading files...
+        </div>
+    `;
+
 
     const {
         data,
         error
-    } = await supabaseClient
-        .from("files")
-        .select("*")
-        .order("created_at", {
-            ascending: false
-        });
+    } =
+        await supabaseClient
+            .from("files")
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
 
 
     if (error) {
 
-        console.error(error);
+        console.error(
+            "Admin files error:",
+            error
+        );
 
-        adminFileList.innerHTML =
-            "<p>Unable to load files.</p>";
+
+        adminFileList.innerHTML = `
+            <div class="error-state">
+                Unable to load files.
+            </div>
+        `;
+
 
         return;
+
     }
 
 
-    const files = data || [];
-
-    adminFileCount.textContent =
-        `${files.length} ${files.length === 1 ? "file" : "files"}`;
+    const files =
+        data || [];
 
 
-    adminFileList.innerHTML = "";
+    if (adminFileCount) {
+
+        adminFileCount.textContent =
+            `${files.length} ${
+                files.length === 1
+                    ? "file"
+                    : "files"
+            }`;
+
+    }
+
+
+    adminFileList.innerHTML =
+        "";
 
 
     if (!files.length) {
@@ -440,65 +700,97 @@ async function loadAdminFiles() {
             </div>
         `;
 
+
         return;
+
     }
 
 
-    files.forEach(file => {
+    files.forEach(
+        file => {
 
-        const item =
-            document.createElement("div");
-
-        item.className =
-            "admin-file";
-
-
-        item.innerHTML = `
-            <div class="admin-file-info">
-
-                <strong>
-                    ${escapeHtml(file.title)}
-                </strong>
-
-                <span>
-                    ${escapeHtml(file.file_name)}
-                    •
-                    ${formatSize(file.file_size)}
-                </span>
-
-            </div>
-
-            <button
-                class="delete-button"
-                data-id="${file.id}"
-                data-path="${escapeHtml(file.file_path)}"
-            >
-                Delete
-            </button>
-        `;
+            const item =
+                document.createElement(
+                    "div"
+                );
 
 
-        const deleteButton =
-            item.querySelector(".delete-button");
+            item.className =
+                "admin-file";
 
 
-        deleteButton.addEventListener(
-            "click",
-            () => deleteFile(
-                file.id,
-                file.file_path,
-                file.title
-            )
-        );
+            item.innerHTML = `
+
+                <div class="admin-file-info">
+
+                    <strong>
+                        ${escapeHTML(
+                            file.title
+                        )}
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(
+                            file.file_name
+                        )}
+
+                        •
+
+                        ${formatSize(
+                            file.file_size
+                        )}
+                    </span>
+
+                    <small>
+                        ${escapeHTML(
+                            file.category
+                                ?.toUpperCase() ||
+                            "OTHER"
+                        )}
+                    </small>
+
+                </div>
+
+                <button
+                    class="delete-button"
+                    type="button"
+                >
+                    Delete
+                </button>
+
+            `;
 
 
-        adminFileList.appendChild(item);
+            const deleteButton =
+                item.querySelector(
+                    ".delete-button"
+                );
 
-    });
+
+            deleteButton.addEventListener(
+                "click",
+                () =>
+                    deleteFile(
+                        file.id,
+                        file.file_path,
+                        file.title
+                    )
+            );
+
+
+            adminFileList.appendChild(
+                item
+            );
+
+        }
+    );
+
 }
 
 
-/* DELETE */
+/* =========================================================
+   DELETE
+========================================================= */
 
 async function deleteFile(
     id,
@@ -517,35 +809,59 @@ async function deleteFile(
 
     try {
 
-        /* Delete storage object */
+        const isAdmin =
+            await checkAdmin();
+
+
+        if (!isAdmin) {
+
+            throw new Error(
+                "You are not authorized."
+            );
+
+        }
+
+
+        /* STORAGE */
 
         const {
             error: storageError
-        } = await supabaseClient
-            .storage
-            .from(SUPABASE_BUCKET)
-            .remove([path]);
+        } =
+            await supabaseClient
+                .storage
+                .from(
+                    SUPABASE_BUCKET
+                )
+                .remove([
+                    path
+                ]);
 
 
         if (storageError) {
 
             throw storageError;
+
         }
 
 
-        /* Delete database record */
+        /* DATABASE */
 
         const {
             error: databaseError
-        } = await supabaseClient
-            .from("files")
-            .delete()
-            .eq("id", id);
+        } =
+            await supabaseClient
+                .from("files")
+                .delete()
+                .eq(
+                    "id",
+                    id
+                );
 
 
         if (databaseError) {
 
             throw databaseError;
+
         }
 
 
@@ -554,16 +870,122 @@ async function deleteFile(
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Delete error:",
+            error
+        );
+
 
         alert(
-            `Delete failed: ${error.message}`
+            `Delete failed: ${
+                error.message
+            }`
         );
 
     }
+
 }
 
 
-/* START */
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function getExtension(filename) {
+
+    const parts =
+        filename.split(".");
+
+
+    return parts
+        .pop()
+        .toLowerCase();
+
+}
+
+
+function createSafePath(extension) {
+
+    return `${crypto.randomUUID()}.${extension}`;
+
+}
+
+
+function formatSize(bytes) {
+
+    if (
+        bytes === null ||
+        bytes === undefined
+    ) {
+
+        return "Unknown";
+
+    }
+
+
+    const units = [
+        "B",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+
+    let size =
+        Number(bytes);
+
+
+    let index = 0;
+
+
+    while (
+        size >= 1024 &&
+        index < units.length - 1
+    ) {
+
+        size /= 1024;
+
+        index++;
+
+    }
+
+
+    return `${size.toFixed(
+        index ? 1 : 0
+    )} ${units[index]}`;
+
+}
+
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
 
 checkSession();
