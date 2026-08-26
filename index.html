@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ADDY — Digital Notes Library</title>
+    <title>ADDY — Digital Notes Library</title>
 
     <meta
         name="description"
-        content="ADDY — A beautiful digital library for notes, documents and study resources."
+        content="ADDY — Digital study notes, documents and learning resources."
     >
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link
         href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
@@ -23,107 +21,124 @@
 
 <body>
 
-    <div class="ambient ambient-one"></div>
-    <div class="ambient ambient-two"></div>
-
-    <!-- NAVIGATION -->
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
 
     <header class="navbar">
 
-        <a href="index.html" class="brand">
-            <span class="brand-mark">A</span>
-            <span>ADDY</span>
+        <a href="index.html" class="logo">
+            <span>ADDY</span>
         </a>
 
-        <nav class="nav-links">
+        <nav>
             <a href="#library">Library</a>
             <a href="#categories">Categories</a>
-            <a href="admin.html" class="admin-nav">
-                Admin
-            </a>
+            <a href="#contact">Contact</a>
+            <a href="admin.html" class="admin">Admin</a>
         </nav>
 
     </header>
 
 
-    <!-- HERO -->
-
     <main>
 
         <section class="hero">
 
-            <div class="hero-notebook">
+            <div class="hero-content">
 
-                <div class="paper-lines"></div>
-
-                <div class="spiral spiral-1"></div>
-                <div class="spiral spiral-2"></div>
-                <div class="spiral spiral-3"></div>
-                <div class="spiral spiral-4"></div>
-
-                <div class="handwriting">
-                    Study.
+                <div class="tag">
+                    ✦ DIGITAL STUDY LIBRARY
                 </div>
 
-                <div class="hero-paper-content">
+                <h1>
+                    Study.
+                    <span>Save.</span>
+                    Download.
+                </h1>
 
-                    <span class="paper-small">
-                        MY DIGITAL NOTEBOOK
-                    </span>
+                <p>
+                    Your personal digital notebook for notes,
+                    presentations, documents and everything
+                    you need to learn.
+                </p>
 
-                    <h1>
-                        Everything you need,
-                        <br>
-                        <span>in one place.</span>
-                    </h1>
+                <div class="buttons">
 
-                    <p>
-                        Notes, presentations, documents and
-                        study resources — beautifully organized
-                        in your personal digital library.
-                    </p>
+                    <a
+                        href="#library"
+                        class="btn primary"
+                    >
+                        Explore Library ↓
+                    </a>
 
-                    <div class="paper-line"></div>
+                    <a
+                        href="#categories"
+                        class="btn secondary"
+                    >
+                        View Categories
+                    </a>
 
-                    <div class="paper-signature">
-                        — ADDY
-                    </div>
+                </div>
 
+                <div class="hero-note">
+                    ✦ Simple • Beautiful • Made for learning
                 </div>
 
             </div>
 
 
-            <div class="hero-text">
+            <div class="notebook-wrap">
 
-                <div class="eyebrow">
-                    ✦ DIGITAL STUDY LIBRARY
-                </div>
+                <div class="notebook">
 
-                <h2>
-                    Learn.
-                    <span>Save.</span>
-                    Download.
-                </h2>
+                    <div class="notebook-top">
+                        ADDY
+                        <span>2026</span>
+                    </div>
 
-                <p>
-                    A simple place to discover useful study
-                    materials and download them instantly.
-                </p>
+                    <div class="notebook-title">
+                        MY DIGITAL
+                        <strong>NOTE</strong>
+                        <em>book.</em>
+                    </div>
 
+                    <div class="notebook-lines"></div>
 
-                <div class="hero-search">
+                    <div class="notebook-bottom">
+                        learn • create • remember
+                    </div>
 
-                    <span>⌕</span>
+                    <div class="notebook-edition">
+                        STUDY EDITION 01
+                    </div>
 
-                    <input
-                        id="searchInput"
-                        type="search"
-                        placeholder="Search your notes..."
-                        autocomplete="off"
-                    >
+                    <div class="note-sticker">
+                        today's notes ✦
+                    </div>
 
-                    <kbd>⌘ K</kbd>
+                    <div class="paper">
+
+                        <small>
+                            MY DIGITAL NOTEBOOK
+                        </small>
+
+                        <h2>
+                            Everything worth
+                            <br>
+                            learning in one place.
+                        </h2>
+
+                        <div class="paper-line"></div>
+
+                        <p>
+                            Notes, ideas and knowledge.
+                        </p>
+
+                        <div class="signature">
+                            — ADDY
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -132,22 +147,21 @@
         </section>
 
 
-        <!-- LIBRARY -->
-
-        <section id="library" class="library-section">
+        <section
+            id="library"
+            class="library"
+        >
 
             <div class="section-heading">
 
                 <div>
-
-                    <span class="section-label">
+                    <span>
                         YOUR LIBRARY
                     </span>
 
                     <h2>
                         Study materials
                     </h2>
-
                 </div>
 
                 <div
@@ -160,7 +174,21 @@
             </div>
 
 
-            <!-- CATEGORIES -->
+            <div class="search">
+
+                <span>⌕</span>
+
+                <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Search your notes..."
+                    autocomplete="off"
+                >
+
+                <kbd>⌘ K</kbd>
+
+            </div>
+
 
             <div
                 id="categories"
@@ -178,46 +206,39 @@
                     class="category"
                     data-category="pdf"
                 >
-                    <span>📕</span>
-                    PDF
+                    📕 PDF
                 </button>
 
                 <button
                     class="category"
                     data-category="docx"
                 >
-                    <span>📘</span>
-                    DOCX
+                    📘 DOCX
                 </button>
 
                 <button
                     class="category"
                     data-category="xlsx"
                 >
-                    <span>📊</span>
-                    XLSX
+                    📊 XLSX
                 </button>
 
                 <button
                     class="category"
                     data-category="pptx"
                 >
-                    <span>📽️</span>
-                    PPTX
+                    📽️ PPTX
                 </button>
 
                 <button
                     class="category"
                     data-category="other"
                 >
-                    <span>📎</span>
-                    Other
+                    📎 Other
                 </button>
 
             </div>
 
-
-            <!-- FILES -->
 
             <div
                 id="loading"
@@ -236,11 +257,11 @@
 
             <div
                 id="emptyState"
-                class="empty-state hidden"
+                class="empty hidden"
             >
 
-                <div class="empty-notebook">
-                    <span>✦</span>
+                <div class="empty-icon">
+                    ✦
                 </div>
 
                 <h3>
@@ -258,14 +279,12 @@
     </main>
 
 
-    <!-- FOOTER -->
+    <footer id="contact">
 
-    <footer>
+        <div class="footer-inner">
 
-        <div class="footer-notebook">
-
-            <div class="footer-logo">
-                ADDY<span>.</span>
+            <div class="footer-brand">
+                ADDY<span>.</span>
             </div>
 
             <p>
@@ -273,22 +292,50 @@
                 for beautiful study notes.
             </p>
 
+
+            <div class="socials">
+
+                <a
+                    href="https://www.instagram.com/noturtyp.addy/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ◎ Instagram
+                    <span>@noturtyp.addy</span>
+                </a>
+
+                <a
+                    href="https://www.tiktok.com/@noturtyp.addy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    ♪ TikTok
+                    <span>@noturtyp.addy</span>
+                </a>
+
+            </div>
+
+
             <div class="footer-line"></div>
 
-            <small>
-                © 2026 ADDY — Made for learning.
-            </small>
+            <div class="footer-bottom">
+
+                <span>
+                    © 2026 ADDY — Made for learning.
+                </span>
+
+                <a href="admin.html">
+                    Admin →
+                </a>
+
+            </div>
 
         </div>
 
     </footer>
 
 
-    <!-- SUPABASE -->
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="config.js"></script>
 
     <script src="app.js"></script>
 
