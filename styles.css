@@ -1,0 +1,35 @@
+/* =========================================================
+   INSTANT LIBRARY UI
+========================================================= */
+
+#loading {
+    display: none !important;
+}
+
+#fileGrid {
+    min-height: 100px;
+}
+
+/* Show library immediately */
+.library-section {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Instant cards */
+.file-card {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* Instant hover only */
+.file-card:hover {
+    transform: translateY(-6px) !important;
+}
+
+/* Don't wait for reveal animations */
+.reveal {
+    opacity: 1 !important;
+    transform: none !important;
+}
