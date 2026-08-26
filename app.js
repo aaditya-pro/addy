@@ -5,112 +5,159 @@ document.addEventListener("DOMContentLoaded", async () => {
     const emptyState = document.getElementById("emptyState");
     const fileCount = document.getElementById("fileCount");
     const searchInput = document.getElementById("searchInput");
-    const categories = document.querySelectorAll(".category");
+    const categoryButtons = document.querySelectorAll(".category");
 
-    let files = [];
+    let allFiles = [];
     let activeCategory = "all";
 
     /* =========================
-       SUPABASE CHECK
+       SUPABASE
     ========================= */
 
-    if (!window.supabaseClient) {
-        showError("Supabase configuration not found");
+    if (!window.supabase) {
+        showError("Supabase library not loaded.");
         return;
     }
 
+    const supabase = window.supabase.createClient(
+        "https://apfqxlriilkwzynozsvv.supabase.co",
+        "sb_publishable_AcwBiZcSMHrkfjV31JJK6A_r45OvAe4"
+    );
+
+    const BUCKET = "addy-files";
+
+
     /* =========================
-       LOAD FILES
+       LOAD STORAGE FILES
     ========================= */
 
     async function loadFiles() {
 
         try {
 
-            loading?.classList.remove("hidden");
+            if (loading) {
+                loading.classList.remove("hidden");
+            }
 
             const { data, error } =
-                await window.supabaseClient
-                    .from("files")
-                    .select("*")
-                    .order("created_at", {
-                        ascending: false
+                await supabase
+                    .storage
+                    .from(BUCKET)
+                    .list("", {
+                        limit: 100,
+                        offset: 0,
+                        sortBy: {
+                            column: "created_at",
+                            order: "desc"
+                        }
                     });
+
 
             if (error) {
 
                 console.error(
-                    "Supabase database error:",
+                    "SUPABASE STORAGE ERROR:",
                     error
                 );
 
-                showError("Unable to load your notes");
+                showError(
+                    "Unable to load your files."
+                );
+
                 return;
             }
 
-            files = data || [];
+
+            console.log(
+                "ADDY FILES:",
+                data
+            );
+
+
+            allFiles = (data || [])
+                .filter(file => file.name)
+                .filter(file =>
+                    !file.name.endsWith("/")
+                );
+
 
             renderFiles();
 
+
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "ADDY ERROR:",
+                error
+            );
 
-            showError("Something went wrong");
+            showError(
+                "Something went wrong."
+            );
 
         } finally {
 
-            loading?.classList.add("hidden");
+            if (loading) {
+                loading.classList.add("hidden");
+            }
+
         }
+
     }
 
+
     /* =========================
-       RENDER
+       RENDER FILES
     ========================= */
 
     function renderFiles() {
 
+        if (!fileGrid)
+            return;
+
+
         const search =
-            searchInput?.value
-                .trim()
-                .toLowerCase() || "";
+            searchInput
+                ? searchInput.value
+                    .trim()
+                    .toLowerCase()
+                : "";
+
 
         const filtered =
-            files.filter(file => {
+            allFiles.filter(file => {
 
-                const title =
-                    String(
-                        file.title ||
-                        file.name ||
-                        file.file_name ||
-                        ""
-                    ).toLowerCase();
+                const name =
+                    file.name
+                        .toLowerCase();
 
-                const description =
-                    String(
-                        file.description || ""
-                    ).toLowerCase();
 
                 const category =
-                    getCategory(file);
+                    getCategory(
+                        file.name
+                    );
+
 
                 const searchMatch =
                     !search ||
-                    title.includes(search) ||
-                    description.includes(search);
+                    name.includes(search);
+
 
                 const categoryMatch =
                     activeCategory === "all" ||
                     category === activeCategory;
 
+
                 return (
                     searchMatch &&
                     categoryMatch
                 );
+
             });
 
 
         fileGrid.innerHTML = "";
+
 
         if (fileCount) {
 
@@ -120,71 +167,92 @@ document.addEventListener("DOMContentLoaded", async () => {
                         ? "file"
                         : "files"
                 }`;
+
         }
 
 
         if (!filtered.length) {
 
-            emptyState?.classList.remove("hidden");
+            if (emptyState) {
+                emptyState.classList.remove(
+                    "hidden"
+                );
+            }
 
             return;
         }
 
-        emptyState?.classList.add("hidden");
+
+        if (emptyState) {
+            emptyState.classList.add(
+                "hidden"
+            );
+        }
 
 
-        filtered.forEach((file, index) => {
+        filtered.forEach(
+            (file, index) => {
 
-            const card =
-                createCard(file, index);
+                fileGrid.appendChild(
+                    createCard(
+                        file,
+                        index
+                    )
+                );
 
-            fileGrid.appendChild(card);
-        });
+            }
+        );
+
     }
 
+
     /* =========================
-       FILE CARD
+       CREATE CARD
     ========================= */
 
     function createCard(file, index) {
 
         const card =
-            document.createElement("article");
+            document.createElement(
+                "article"
+            );
 
-        card.className = "file-card";
+
+        card.className =
+            "file-card";
+
 
         card.style.animationDelay =
             `${index * 0.06}s`;
 
 
-        const title =
-            file.title ||
-            file.name ||
-            file.file_name ||
-            "Untitled";
-
-
-        const description =
-            file.description ||
-            "Study material from ADDY.";
+        const name =
+            cleanFileName(
+                file.name
+            );
 
 
         const category =
-            getCategory(file);
+            getCategory(
+                file.name
+            );
 
 
         const icon =
-            getIcon(category);
+            getIcon(
+                category
+            );
 
 
         const url =
-            getFileURL(file);
+            getPublicURL(
+                file.name
+            );
 
 
         const size =
             formatSize(
-                file.size ||
-                file.file_size
+                file.metadata?.size
             );
 
 
@@ -195,11 +263,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
 
             <h3>
-                ${escapeHTML(title)}
+                ${escapeHTML(name)}
             </h3>
 
             <p class="file-description">
-                ${escapeHTML(description)}
+                Study material from ADDY.
             </p>
 
             <div class="file-info">
@@ -214,141 +282,128 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             </div>
 
-            ${
-                url
-                    ? `
-                    <a
-                        href="${escapeHTML(url)}"
-                        class="download-button"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                    >
-                        ↓ DOWNLOAD
-                    </a>
-                    `
-                    : `
-                    <button
-                        class="download-button"
-                        disabled
-                    >
-                        FILE UNAVAILABLE
-                    </button>
-                    `
-            }
+            <a
+                class="download-button"
+                href="${escapeHTML(url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+            >
+                ↓ DOWNLOAD
+            </a>
 
         `;
 
+
         return card;
+
     }
+
+
+    /* =========================
+       PUBLIC FILE URL
+    ========================= */
+
+    function getPublicURL(fileName) {
+
+        const result =
+            supabase
+                .storage
+                .from(BUCKET)
+                .getPublicUrl(
+                    fileName
+                );
+
+
+        return result.data.publicUrl;
+
+    }
+
 
     /* =========================
        CATEGORY
     ========================= */
 
-    function getCategory(file) {
+    function getCategory(fileName) {
 
-        const value =
-            String(
-                file.category ||
-                file.type ||
-                file.file_type ||
-                file.mime_type ||
-                file.title ||
-                file.name ||
-                ""
-            ).toLowerCase();
+        const extension =
+            fileName
+                .split(".")
+                .pop()
+                .toLowerCase();
 
 
-        if (value.includes("pdf"))
+        if (extension === "pdf")
             return "pdf";
 
+
         if (
-            value.includes("doc") ||
-            value.includes("word")
+            extension === "doc" ||
+            extension === "docx"
         )
             return "docx";
 
+
         if (
-            value.includes("xls") ||
-            value.includes("sheet")
+            extension === "xls" ||
+            extension === "xlsx"
         )
             return "xlsx";
 
+
         if (
-            value.includes("ppt") ||
-            value.includes("presentation")
+            extension === "ppt" ||
+            extension === "pptx"
         )
             return "pptx";
 
+
         return "other";
+
     }
 
+
+    /* =========================
+       ICON
+    ========================= */
 
     function getIcon(category) {
 
-        const icons = {
+        if (category === "pdf")
+            return "📕";
 
-            pdf: "📕",
+        if (category === "docx")
+            return "📘";
 
-            docx: "📘",
+        if (category === "xlsx")
+            return "📊";
 
-            xlsx: "📊",
+        if (category === "pptx")
+            return "📽️";
 
-            pptx: "📽️",
+        return "📎";
 
-            other: "📎"
-        };
-
-        return icons[category] || "📎";
     }
 
+
     /* =========================
-       FILE URL
+       CLEAN NAME
     ========================= */
 
-    function getFileURL(file) {
+    function cleanFileName(name) {
 
-        /* If database already stores URL */
+        return name
+            .replace(/\.[^/.]+$/, "")
+            .replace(/[-_]+/g, " ")
+            .replace(/\b\w/g, letter =>
+                letter.toUpperCase()
+            );
 
-        if (file.url)
-            return file.url;
-
-        if (file.file_url)
-            return file.file_url;
-
-        if (file.download_url)
-            return file.download_url;
-
-        if (file.public_url)
-            return file.public_url;
-
-
-        /* Storage path */
-
-        const path =
-            file.path ||
-            file.file_path ||
-            file.storage_path ||
-            file.filename;
-
-
-        if (!path)
-            return "";
-
-
-        const { data } =
-            window.supabaseClient
-                .storage
-                .from(SUPABASE_BUCKET)
-                .getPublicUrl(path);
-
-
-        return data?.publicUrl || "";
     }
 
+
     /* =========================
-       SIZE
+       FILE SIZE
     ========================= */
 
     function formatSize(bytes) {
@@ -356,12 +411,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!bytes)
             return "";
 
-        let size = Number(bytes);
 
-        const units =
-            ["B", "KB", "MB", "GB"];
+        const units = [
+            "B",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+
+        let size =
+            Number(bytes);
+
 
         let unit = 0;
+
 
         while (
             size >= 1024 &&
@@ -369,52 +433,68 @@ document.addEventListener("DOMContentLoaded", async () => {
         ) {
 
             size /= 1024;
-
             unit++;
+
         }
+
 
         return `${size.toFixed(
             size >= 10 ? 1 : 2
         )} ${units[unit]}`;
+
     }
+
 
     /* =========================
        SEARCH
     ========================= */
 
-    searchInput?.addEventListener(
-        "input",
-        renderFiles
-    );
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            renderFiles
+        );
+
+    }
 
 
     /* =========================
        CATEGORIES
     ========================= */
 
-    categories.forEach(button => {
+    categoryButtons.forEach(
+        button => {
 
-        button.addEventListener(
-            "click",
-            () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-                categories.forEach(
-                    item =>
-                        item.classList.remove(
-                            "active"
-                        )
-                );
+                    categoryButtons.forEach(
+                        item =>
+                            item.classList.remove(
+                                "active"
+                            )
+                    );
 
-                button.classList.add("active");
 
-                activeCategory =
-                    button.dataset.category ||
-                    "all";
+                    button.classList.add(
+                        "active"
+                    );
 
-                renderFiles();
-            }
-        );
-    });
+
+                    activeCategory =
+                        button.dataset.category ||
+                        "all";
+
+
+                    renderFiles();
+
+                }
+            );
+
+        }
+    );
 
 
     /* =========================
@@ -434,6 +514,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 event.preventDefault();
 
                 searchInput?.focus();
+
             }
 
 
@@ -448,7 +529,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 renderFiles();
 
                 searchInput.blur();
+
             }
+
         }
     );
 
@@ -459,10 +542,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function showError(message) {
 
-        loading?.classList.add("hidden");
+        if (loading) {
+            loading.classList.add(
+                "hidden"
+            );
+        }
+
 
         if (!fileGrid)
             return;
+
 
         fileGrid.innerHTML = `
 
@@ -475,27 +564,45 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </h3>
 
                 <p>
-                    Please try refreshing the page.
+                    Check your Supabase
+                    Storage configuration.
                 </p>
 
             </div>
 
         `;
+
     }
 
 
     /* =========================
-       SECURITY
+       ESCAPE HTML
     ========================= */
 
     function escapeHTML(value) {
 
         return String(value)
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
+
     }
 
 
