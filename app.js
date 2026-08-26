@@ -1,287 +1,128 @@
-document.addEventListener("DOMContentLoaded", async () => {
+const SUPABASE_URL = "https://apfqxlriilkwzynozsvv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_AcwBiZcSMHrkfjV31JJK6A_r45OvAe4";
+const SUPABASE_BUCKET = "addy-files";
 
-    const SUPABASE_URL =
-        "https://apfqxlriilkwzynozsvv.supabase.co";
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
-    const SUPABASE_KEY =
-        "sb_publishable_AcwBiZcSMHrkfjV31JJK6A_r45OvAe4";
+let allFiles = [];
+let currentCategory = "all";
 
-    const BUCKET =
-        "addy-files";
+const fileGrid = document.getElementById("fileGrid");
+const fileCount = document.getElementById("fileCount");
+const loading = document.getElementById("loading");
+const emptyState = document.getElementById("emptyState");
+const searchInput = document.getElementById("searchInput");
 
+document.addEventListener("DOMContentLoaded", () => {
+    loadFiles();
 
-    /* =========================
-       ELEMENTS
-    ========================= */
-
-    const fileGrid =
-        document.getElementById("fileGrid");
-
-    const loading =
-        document.getElementById("loading");
-
-    const emptyState =
-        document.getElementById("emptyState");
-
-    const fileCount =
-        document.getElementById("fileCount");
-
-    const searchInput =
-        document.getElementById("searchInput");
-
-    const categoryButtons =
-        document.querySelectorAll(
-            ".category"
-        );
-
-
-    let files = [];
-
-    let activeCategory = "all";
-
-
-    /* =========================
-       SUPABASE CLIENT
-    ========================= */
-
-    if (!window.supabase) {
-
-        showError(
-            "Supabase library failed to load."
-        );
-
-        return;
+    if (searchInput) {
+        searchInput.addEventListener("input", filterFiles);
     }
 
+    document.querySelectorAll(".category").forEach(button => {
+        button.addEventListener("click", () => {
+            document.querySelectorAll(".category")
+                .forEach(btn => btn.classList.remove("active"));
 
-    const supabase =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
+            button.classList.add("active");
 
+            currentCategory = button.dataset.category;
 
-    /* =========================
-       LOAD FILES
-    ========================= */
-
-    async function loadFiles() {
-
-        try {
-
-            loading.classList.remove(
-                "hidden"
-            );
+            filterFiles();
+        });
+    });
+});
 
 
-            const {
-                data,
-                error
-            } = await supabase
-                .storage
-                .from(BUCKET)
-                .list("", {
-                    limit: 100,
-                    offset: 0,
-                    sortBy: {
-                        column: "created_at",
-                        order: "desc"
-                    }
-                });
+async function loadFiles() {
 
+    loading.classList.remove("hidden");
+    fileGrid.innerHTML = "";
+    emptyState.classList.add("hidden");
 
-            if (error) {
+    try {
 
-                console.error(
-                    "SUPABASE ERROR:",
-                    error
-                );
-
-                showError(
-                    error.message ||
-                    "Unable to load files."
-                );
-
-                return;
-            }
-
-
-            files = (data || [])
-                .filter(file =>
-                    file &&
-                    file.name
-                );
-
-
-            render();
-
-
-        } catch (error) {
-
-            console.error(
-                "ADDY ERROR:",
-                error
-            );
-
-            showError(
-                "Something went wrong."
-            );
-
-        } finally {
-
-            loading.classList.add(
-                "hidden"
-            );
-
-        }
-
-    }
-
-
-    /* =========================
-       RENDER
-    ========================= */
-
-    function render() {
-
-        const search =
-            searchInput.value
-                .trim()
-                .toLowerCase();
-
-
-        const filtered =
-            files.filter(file => {
-
-                const name =
-                    file.name.toLowerCase();
-
-
-                const category =
-                    getCategory(
-                        file.name
-                    );
-
-
-                return (
-
-                    (!search ||
-                        name.includes(search))
-
-                    &&
-
-                    (
-                        activeCategory === "all" ||
-                        category === activeCategory
-                    )
-
-                );
-
+        const { data, error } = await supabaseClient
+            .from("files")
+            .select("*")
+            .order("created_at", {
+                ascending: false
             });
 
-
-        fileGrid.innerHTML = "";
-
-
-        fileCount.textContent =
-            `${filtered.length} ${
-                filtered.length === 1
-                    ? "file"
-                    : "files"
-            }`;
-
-
-        if (!filtered.length) {
-
-            emptyState.classList.remove(
-                "hidden"
-            );
-
+        if (error) {
+            console.error("Supabase database error:", error);
+            showError("Could not load your files.");
             return;
         }
 
+        allFiles = data || [];
 
-        emptyState.classList.add(
-            "hidden"
-        );
+        renderFiles(allFiles);
 
+    } catch (error) {
 
-        filtered.forEach(
-            (file, index) => {
+        console.error("Loading error:", error);
 
-                fileGrid.appendChild(
-                    createCard(
-                        file,
-                        index
-                    )
-                );
+        showError("Something went wrong while loading files.");
 
-            }
-        );
+    } finally {
+
+        loading.classList.add("hidden");
 
     }
+}
 
 
-    /* =========================
-       CARD
-    ========================= */
+function renderFiles(files) {
 
-    function createCard(
-        file,
-        index
-    ) {
+    fileGrid.innerHTML = "";
 
-        const card =
-            document.createElement(
-                "article"
-            );
+    if (fileCount) {
+        fileCount.textContent =
+            `${files.length} ${files.length === 1 ? "file" : "files"}`;
+    }
 
+    if (!files.length) {
+        emptyState.classList.remove("hidden");
+        return;
+    }
 
-        card.className =
-            "file-card";
+    emptyState.classList.add("hidden");
 
+    files.forEach((file, index) => {
 
-        card.style.animationDelay =
-            `${index * .06}s`;
+        const card = document.createElement("article");
 
+        card.className = "file-card";
+
+        card.style.animationDelay = `${index * 70}ms`;
+
+        const type = getFileType(file);
+
+        const icon = getFileIcon(type);
 
         const name =
-            cleanName(
-                file.name
-            );
+            file.name ||
+            file.file_name ||
+            file.title ||
+            "Untitled file";
 
-
-        const category =
-            getCategory(
-                file.name
-            );
-
-
-        const icon =
-            getIcon(
-                category
-            );
-
-
-        const url =
-            supabase
-                .storage
-                .from(BUCKET)
-                .getPublicUrl(
-                    file.name
-                )
-                .data
-                .publicUrl;
-
+        const description =
+            file.description ||
+            "Study material from ADDY.";
 
         const size =
-            formatSize(
-                file.metadata?.size
-            );
+            file.size ||
+            file.file_size ||
+            "";
 
+        const url = getFileUrl(file);
 
         card.innerHTML = `
-
             <div class="file-type">
                 ${icon}
             </div>
@@ -291,322 +132,304 @@ document.addEventListener("DOMContentLoaded", async () => {
             </h3>
 
             <p class="file-description">
-                Study material from ADDY.
+                ${escapeHTML(description)}
             </p>
 
             <div class="file-info">
-                ${category.toUpperCase()}
-                ${size ? ` • ${size}` : ""}
+                ${type.toUpperCase()}
+                ${size ? `• ${escapeHTML(String(size))}` : ""}
             </div>
 
-            <a
-                class="download-button"
-                href="${escapeHTML(url)}"
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-            >
-                ↓ DOWNLOAD
-            </a>
-
+            ${
+                url
+                ? `
+                <a
+                    class="download-button"
+                    href="${url}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                >
+                    ↓ DOWNLOAD
+                </a>
+                `
+                : `
+                <button
+                    class="download-button"
+                    disabled
+                >
+                    FILE UNAVAILABLE
+                </button>
+                `
+            }
         `;
 
+        fileGrid.appendChild(card);
+    });
 
-        return card;
+    observeCards();
+}
 
+
+function getFileType(file) {
+
+    if (file.type) {
+        return file.type.toLowerCase().replace(".", "");
     }
 
-
-    /* =========================
-       CATEGORY
-    ========================= */
-
-    function getCategory(name) {
-
-        const extension =
-            name
-                .split(".")
-                .pop()
-                .toLowerCase();
-
-
-        if (extension === "pdf")
-            return "pdf";
-
-
-        if (
-            extension === "doc" ||
-            extension === "docx"
-        )
-            return "docx";
-
-
-        if (
-            extension === "xls" ||
-            extension === "xlsx"
-        )
-            return "xlsx";
-
-
-        if (
-            extension === "ppt" ||
-            extension === "pptx"
-        )
-            return "pptx";
-
-
-        return "other";
-
+    if (file.file_type) {
+        return file.file_type.toLowerCase().replace(".", "");
     }
 
+    if (file.name) {
+        const parts = file.name.split(".");
 
-    /* =========================
-       ICON
-    ========================= */
-
-    function getIcon(category) {
-
-        const icons = {
-
-            pdf: "📕",
-
-            docx: "📘",
-
-            xlsx: "📊",
-
-            pptx: "📽️",
-
-            other: "📎"
-
-        };
-
-
-        return icons[category] ||
-            icons.other;
-
+        if (parts.length > 1) {
+            return parts.pop().toLowerCase();
+        }
     }
 
+    if (file.file_name) {
+        const parts = file.file_name.split(".");
 
-    /* =========================
-       NAME
-    ========================= */
+        if (parts.length > 1) {
+            return parts.pop().toLowerCase();
+        }
+    }
 
-    function cleanName(name) {
+    return "other";
+}
 
-        return name
-            .replace(
-                /\.[^/.]+$/,
+
+function getFileIcon(type) {
+
+    const icons = {
+        pdf: "📕",
+        doc: "📘",
+        docx: "📘",
+        xls: "📊",
+        xlsx: "📊",
+        ppt: "📽️",
+        pptx: "📽️",
+        txt: "📎",
+        zip: "📎"
+    };
+
+    return icons[type] || "📎";
+}
+
+
+function getFileUrl(file) {
+
+    if (file.url) {
+        return file.url;
+    }
+
+    if (file.file_url) {
+        return file.file_url;
+    }
+
+    if (file.path) {
+
+        const {
+            data
+        } = supabaseClient
+            .storage
+            .from(SUPABASE_BUCKET)
+            .getPublicUrl(file.path);
+
+        return data.publicUrl;
+    }
+
+    if (file.file_path) {
+
+        const {
+            data
+        } = supabaseClient
+            .storage
+            .from(SUPABASE_BUCKET)
+            .getPublicUrl(file.file_path);
+
+        return data.publicUrl;
+    }
+
+    return null;
+}
+
+
+function filterFiles() {
+
+    const query =
+        searchInput
+            ? searchInput.value.toLowerCase().trim()
+            : "";
+
+    const filtered = allFiles.filter(file => {
+
+        const name =
+            String(
+                file.name ||
+                file.file_name ||
+                file.title ||
                 ""
-            )
-            .replace(
-                /[-_]+/g,
-                " "
-            )
-            .replace(
-                /\b\w/g,
-                letter =>
-                    letter.toUpperCase()
+            ).toLowerCase();
+
+        const description =
+            String(
+                file.description ||
+                ""
+            ).toLowerCase();
+
+        const type = getFileType(file);
+
+        const matchesSearch =
+            !query ||
+            name.includes(query) ||
+            description.includes(query) ||
+            type.includes(query);
+
+        const matchesCategory =
+            currentCategory === "all" ||
+            type === currentCategory;
+
+        return matchesSearch && matchesCategory;
+    });
+
+    renderFiles(filtered);
+}
+
+
+function showError(message) {
+
+    loading.classList.add("hidden");
+
+    fileGrid.innerHTML = `
+        <div class="error-state">
+            <div>⚠</div>
+
+            <h3>
+                Something went wrong
+            </h3>
+
+            <p>
+                ${escapeHTML(message)}
+            </p>
+
+            <button
+                class="download-button"
+                onclick="loadFiles()"
+            >
+                TRY AGAIN
+            </button>
+        </div>
+    `;
+
+    if (fileCount) {
+        fileCount.textContent = "0 files";
+    }
+}
+
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/* -----------------------------
+   SMOOTH SCROLL
+----------------------------- */
+
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+
+    link.addEventListener("click", event => {
+
+        const target =
+            document.querySelector(
+                link.getAttribute("href")
             );
 
+        if (!target) return;
+
+        event.preventDefault();
+
+        target.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    });
+
+});
+
+
+/* -----------------------------
+   SCROLL REVEAL
+----------------------------- */
+
+function observeCards() {
+
+    const cards =
+        document.querySelectorAll(".file-card");
+
+    if (!("IntersectionObserver" in window)) {
+
+        cards.forEach(card => {
+            card.classList.add("visible");
+        });
+
+        return;
     }
 
+    const observer =
+        new IntersectionObserver(
+            entries => {
 
-    /* =========================
-       SIZE
-    ========================= */
+                entries.forEach(entry => {
 
-    function formatSize(bytes) {
+                    if (entry.isIntersecting) {
 
-        if (!bytes)
-            return "";
+                        entry.target.classList.add("visible");
 
+                        observer.unobserve(entry.target);
+                    }
 
-        let size =
-            Number(bytes);
+                });
 
-
-        const units = [
-            "B",
-            "KB",
-            "MB",
-            "GB"
-        ];
-
-
-        let unit = 0;
-
-
-        while (
-            size >= 1024 &&
-            unit <
-                units.length - 1
-        ) {
-
-            size /= 1024;
-
-            unit++;
-
-        }
-
-
-        return `${size.toFixed(
-            size >= 10 ? 1 : 2
-        )} ${units[unit]}`;
-
-    }
-
-
-    /* =========================
-       SEARCH
-    ========================= */
-
-    searchInput.addEventListener(
-        "input",
-        render
-    );
-
-
-    /* =========================
-       CATEGORIES
-    ========================= */
-
-    categoryButtons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    categoryButtons.forEach(
-                        item =>
-                            item.classList.remove(
-                                "active"
-                            )
-                    );
-
-
-                    button.classList.add(
-                        "active"
-                    );
-
-
-                    activeCategory =
-                        button.dataset.category;
-
-
-                    render();
-
-                }
-            );
-
-        }
-    );
-
-
-    /* =========================
-       COMMAND K
-    ========================= */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                (event.metaKey ||
-                    event.ctrlKey) &&
-                event.key.toLowerCase() === "k"
-            ) {
-
-                event.preventDefault();
-
-                searchInput.focus();
-
+            },
+            {
+                threshold: 0.12
             }
-
-
-            if (
-                event.key === "Escape"
-            ) {
-
-                searchInput.value = "";
-
-                render();
-
-            }
-
-        }
-    );
-
-
-    /* =========================
-       ERROR
-    ========================= */
-
-    function showError(message) {
-
-        loading.classList.add(
-            "hidden"
         );
 
-
-        fileGrid.innerHTML = `
-
-            <div class="empty">
-
-                <div class="empty-icon">
-                    ⚠
-                </div>
-
-                <h3>
-                    Something went wrong
-                </h3>
-
-                <p>
-                    ${escapeHTML(message)}
-                </p>
-
-            </div>
-
-        `;
-
-    }
+    cards.forEach(card => {
+        observer.observe(card);
+    });
+}
 
 
-    /* =========================
-       SECURITY
-    ========================= */
+/* -----------------------------
+   COMMAND + K SEARCH
+----------------------------- */
 
-    function escapeHTML(value) {
+document.addEventListener("keydown", event => {
 
-        return String(value)
-            .replaceAll(
-                "&",
-                "&amp;"
-            )
-            .replaceAll(
-                "<",
-                "&lt;"
-            )
-            .replaceAll(
-                ">",
-                "&gt;"
-            )
-            .replaceAll(
-                '"',
-                "&quot;"
-            )
-            .replaceAll(
-                "'",
-                "&#039;"
-            );
+    if (
+        (event.metaKey || event.ctrlKey) &&
+        event.key.toLowerCase() === "k"
+    ) {
+
+        event.preventDefault();
+
+        if (searchInput) {
+            searchInput.focus();
+        }
 
     }
-
-
-    /* =========================
-       START
-    ========================= */
-
-    await loadFiles();
 
 });
