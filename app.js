@@ -1,751 +1,509 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-  const fileGrid = document.getElementById("fileGrid");
-  const loading = document.getElementById("loading");
-  const emptyState = document.getElementById("emptyState");
-  const fileCount = document.getElementById("fileCount");
+    const fileGrid = document.getElementById("fileGrid");
+    const loading = document.getElementById("loading");
+    const emptyState = document.getElementById("emptyState");
+    const fileCount = document.getElementById("fileCount");
+    const searchInput = document.getElementById("searchInput");
 
-  const searchInput = document.getElementById("searchInput");
-  const clearSearch = document.getElementById("clearSearch");
+    let files = [];
+    let currentCategory = "all";
 
-  const categories = document.querySelectorAll(".category");
+    /* =========================
+       SUPABASE
+    ========================= */
 
-  const mobileMenu = document.getElementById("mobileMenu");
-  const navLinks = document.getElementById("navLinks");
+    if (!window.supabase) {
+        showError("Supabase library failed to load.");
+        return;
+    }
 
-
-  /* --------------------------------
-     MOBILE MENU
-  -------------------------------- */
-
-  if (mobileMenu && navLinks) {
-
-    mobileMenu.addEventListener("click", () => {
-      navLinks.classList.toggle("open");
-    });
-
-    navLinks.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("open");
-      });
-    });
-
-  }
-
-
-  /* --------------------------------
-     FILE DATA
-  -------------------------------- */
-
-  let files = [];
-
-  let activeCategory = "all";
-
-
-  /* --------------------------------
-     SUPABASE
-  -------------------------------- */
-
-  async function loadFiles() {
-
-    loading.classList.remove("hidden");
-    fileGrid.innerHTML = "";
-    emptyState.classList.add("hidden");
-
-    try {
-
-      if (
-        typeof supabase === "undefined" ||
+    if (
         typeof SUPABASE_URL === "undefined" ||
         typeof SUPABASE_ANON_KEY === "undefined"
-      ) {
-
-        /*
-          If Supabase is not configured,
-          the page remains usable instead of crashing.
-        */
-
-        files = [];
-
-        showEmpty();
-
+    ) {
+        showError("Supabase configuration not found.");
         return;
-      }
+    }
 
-
-      const client = supabase.createClient(
+    const supabaseClient = window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_ANON_KEY
-      );
-
-
-      const { data, error } = await client
-        .from("files")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        });
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      files = Array.isArray(data)
-        ? data
-        : [];
-
-
-      renderFiles();
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "ADDY library error:",
-        error
-      );
-
-      files = [];
-
-      showEmpty();
-
-    }
-
-    finally {
-
-      loading.classList.add("hidden");
-
-    }
-
-  }
-
-
-  /* --------------------------------
-     FILTER FILES
-  -------------------------------- */
-
-  function getFilteredFiles() {
-
-    const search =
-      searchInput.value
-        .trim()
-        .toLowerCase();
-
-
-    return files.filter(file => {
-
-      const name =
-        String(
-          file.name ||
-          file.title ||
-          ""
-        ).toLowerCase();
-
-
-      const description =
-        String(
-          file.description ||
-          ""
-        ).toLowerCase();
-
-
-      const category =
-        getFileType(file);
-
-
-      const matchesSearch =
-        !search ||
-        name.includes(search) ||
-        description.includes(search);
-
-
-      const matchesCategory =
-        activeCategory === "all" ||
-        category === activeCategory;
-
-
-      return (
-        matchesSearch &&
-        matchesCategory
-      );
-
-    });
-
-  }
-
-
-  /* --------------------------------
-     GET FILE TYPE
-  -------------------------------- */
-
-  function getFileType(file) {
-
-    const type =
-      String(
-        file.type ||
-        file.file_type ||
-        file.category ||
-        ""
-      ).toLowerCase();
-
-
-    const name =
-      String(
-        file.name ||
-        file.title ||
-        ""
-      ).toLowerCase();
-
-
-    if (
-      type.includes("pdf") ||
-      name.endsWith(".pdf")
-    ) {
-      return "pdf";
-    }
-
-
-    if (
-      type.includes("doc") ||
-      name.endsWith(".doc") ||
-      name.endsWith(".docx")
-    ) {
-      return "docx";
-    }
-
-
-    if (
-      type.includes("xls") ||
-      name.endsWith(".xls") ||
-      name.endsWith(".xlsx")
-    ) {
-      return "xlsx";
-    }
-
-
-    if (
-      type.includes("ppt") ||
-      name.endsWith(".ppt") ||
-      name.endsWith(".pptx")
-    ) {
-      return "pptx";
-    }
-
-
-    return "other";
-
-  }
-
-
-  /* --------------------------------
-     FILE ICON
-  -------------------------------- */
-
-  function getFileIcon(type) {
-
-    const icons = {
-      pdf: "📕",
-      docx: "📘",
-      xlsx: "📊",
-      pptx: "📽️",
-      other: "📎"
-    };
-
-    return icons[type] || "📎";
-
-  }
-
-
-  /* --------------------------------
-     RENDER FILES
-  -------------------------------- */
-
-  function renderFiles() {
-
-    const filtered =
-      getFilteredFiles();
-
-
-    fileGrid.innerHTML = "";
-
-
-    fileCount.textContent =
-      `${filtered.length} ${
-        filtered.length === 1
-          ? "file"
-          : "files"
-      }`;
-
-
-    if (!filtered.length) {
-
-      emptyState.classList.remove("hidden");
-
-      return;
-
-    }
-
-
-    emptyState.classList.add("hidden");
-
-
-    filtered.forEach(
-      (file, index) => {
-
-        const card =
-          createFileCard(
-            file,
-            index
-          );
-
-        fileGrid.appendChild(card);
-
-      }
     );
 
-  }
+    /* =========================
+       LOAD FILES
+    ========================= */
 
+    async function loadFiles() {
 
-  /* --------------------------------
-     CREATE FILE CARD
-  -------------------------------- */
+        loading.classList.remove("hidden");
+        emptyState.classList.add("hidden");
+        fileGrid.innerHTML = "";
 
-  function createFileCard(
-    file,
-    index
-  ) {
+        try {
 
-    const card =
-      document.createElement("article");
+            const { data, error } = await supabaseClient
+                .from("files")
+                .select("*")
+                .order("created_at", { ascending: false });
 
-
-    card.className =
-      "file-card";
-
-
-    card.style.animationDelay =
-      `${index * 70}ms`;
-
-
-    const type =
-      getFileType(file);
-
-
-    const icon =
-      getFileIcon(type);
-
-
-    const title =
-      file.title ||
-      file.name ||
-      "Untitled note";
-
-
-    const description =
-      file.description ||
-      "Study material from ADDY.";
-
-
-    const url =
-      file.url ||
-      file.file_url ||
-      file.download_url ||
-      file.path ||
-      "#";
-
-
-    const size =
-      file.size
-        ? formatSize(file.size)
-        : "";
-
-
-    const date =
-      file.created_at
-        ? formatDate(file.created_at)
-        : "";
-
-
-    card.innerHTML = `
-
-      <div class="file-type">
-        ${icon}
-      </div>
-
-      <h3>
-        ${escapeHTML(title)}
-      </h3>
-
-      <p class="file-description">
-        ${escapeHTML(description)}
-      </p>
-
-      <div class="file-info">
-
-        ${
-          type.toUpperCase()
-        }
-
-        ${size ? `• ${size}` : ""}
-
-        ${date ? `• ${date}` : ""}
-
-      </div>
-
-      <a
-        class="download-button"
-        href="${escapeAttribute(url)}"
-        target="_blank"
-        rel="noopener noreferrer"
-        download
-      >
-        ↓
-        Download
-      </a>
-
-    `;
-
-
-    return card;
-
-  }
-
-
-  /* --------------------------------
-     SEARCH
-  -------------------------------- */
-
-  if (searchInput) {
-
-    searchInput.addEventListener(
-      "input",
-      () => {
-
-        clearSearch.style.display =
-          searchInput.value
-            ? "block"
-            : "none";
-
-        renderFiles();
-
-      }
-    );
-
-  }
-
-
-  if (clearSearch) {
-
-    clearSearch.addEventListener(
-      "click",
-      () => {
-
-        searchInput.value = "";
-
-        clearSearch.style.display =
-          "none";
-
-        searchInput.focus();
-
-        renderFiles();
-
-      }
-    );
-
-  }
-
-
-  /* --------------------------------
-     COMMAND + K
-  -------------------------------- */
-
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      if (
-        (event.metaKey ||
-         event.ctrlKey) &&
-        event.key.toLowerCase() === "k"
-      ) {
-
-        event.preventDefault();
-
-        searchInput.focus();
-
-      }
-
-      if (
-        event.key === "Escape" &&
-        document.activeElement === searchInput
-      ) {
-
-        searchInput.blur();
-
-      }
-
-    }
-  );
-
-
-  /* --------------------------------
-     CATEGORIES
-  -------------------------------- */
-
-  categories.forEach(button => {
-
-    button.addEventListener(
-      "click",
-      () => {
-
-        categories.forEach(
-          item =>
-            item.classList.remove(
-              "active"
-            )
-        );
-
-
-        button.classList.add(
-          "active"
-        );
-
-
-        activeCategory =
-          button.dataset.category ||
-          "all";
-
-
-        renderFiles();
-
-      }
-    );
-
-  });
-
-
-  /* --------------------------------
-     SCROLL REVEAL
-  -------------------------------- */
-
-  const revealElements =
-    document.querySelectorAll(
-      ".reveal"
-    );
-
-
-  if (
-    "IntersectionObserver"
-    in window
-  ) {
-
-    const observer =
-      new IntersectionObserver(
-        entries => {
-
-          entries.forEach(entry => {
-
-            if (
-              entry.isIntersecting
-            ) {
-
-              entry.target.classList.add(
-                "visible"
-              );
-
-              observer.unobserve(
-                entry.target
-              );
-
+            if (error) {
+                throw error;
             }
 
-          });
+            files = data || [];
 
-        },
-        {
-          threshold: .12
+            loading.classList.add("hidden");
+
+            updateCount(files.length);
+
+            renderFiles();
+
+        } catch (error) {
+
+            console.error("File loading error:", error);
+
+            loading.classList.add("hidden");
+
+            showError(
+                "Unable to load your library. Please try again."
+            );
         }
-      );
+    }
 
+    /* =========================
+       RENDER
+    ========================= */
 
-    revealElements.forEach(
-      element =>
-        observer.observe(element)
-    );
+    function renderFiles() {
 
-  }
+        const searchTerm =
+            searchInput?.value.trim().toLowerCase() || "";
 
-  else {
+        const filtered = files.filter(file => {
 
-    revealElements.forEach(
-      element =>
-        element.classList.add(
-          "visible"
-        )
-    );
+            const name = String(
+                file.name ||
+                file.title ||
+                file.file_name ||
+                ""
+            ).toLowerCase();
 
-  }
+            const description = String(
+                file.description || ""
+            ).toLowerCase();
 
+            const category =
+                getCategory(file);
 
-  /* --------------------------------
-     SMOOTH INTERNAL LINKS
-  -------------------------------- */
+            const categoryMatch =
+                currentCategory === "all" ||
+                category === currentCategory;
 
-  document
-    .querySelectorAll(
-      'a[href^="#"]'
-    )
-    .forEach(link => {
+            const searchMatch =
+                !searchTerm ||
+                name.includes(searchTerm) ||
+                description.includes(searchTerm);
 
-      link.addEventListener(
-        "click",
-        event => {
+            return categoryMatch && searchMatch;
+        });
 
-          const target =
-            document.querySelector(
-              link.getAttribute("href")
+        fileGrid.innerHTML = "";
+
+        if (!filtered.length) {
+
+            emptyState.classList.remove("hidden");
+
+            return;
+        }
+
+        emptyState.classList.add("hidden");
+
+        filtered.forEach((file, index) => {
+
+            const card =
+                createFileCard(file, index);
+
+            fileGrid.appendChild(card);
+        });
+    }
+
+    /* =========================
+       FILE CARD
+    ========================= */
+
+    function createFileCard(file, index) {
+
+        const card =
+            document.createElement("article");
+
+        card.className = "file-card";
+
+        card.style.animationDelay =
+            `${index * 70}ms`;
+
+        const name =
+            file.name ||
+            file.title ||
+            file.file_name ||
+            "Untitled file";
+
+        const description =
+            file.description ||
+            "Study material from ADDY.";
+
+        const category =
+            getCategory(file);
+
+        const extension =
+            getExtension(file);
+
+        const icon =
+            getIcon(extension);
+
+        const size =
+            formatSize(
+                file.size ||
+                file.file_size ||
+                0
             );
 
+        const downloadURL =
+            getDownloadURL(file);
 
-          if (!target) return;
+        card.innerHTML = `
+            <div class="file-type">
+                ${icon}
+            </div>
 
+            <h3>
+                ${escapeHTML(name)}
+            </h3>
 
-          event.preventDefault();
+            <p class="file-description">
+                ${escapeHTML(description)}
+            </p>
 
+            <div class="file-info">
+                <span>${extension.toUpperCase()}</span>
+                <span>•</span>
+                <span>${size}</span>
+            </div>
 
-          target.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
+            <a
+                class="download-button"
+                href="${downloadURL}"
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+            >
+                ↓ DOWNLOAD
+            </a>
+        `;
 
-        }
-      );
-
-    });
-
-
-  /* --------------------------------
-     HELPERS
-  -------------------------------- */
-
-  function escapeHTML(value) {
-
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-
-  }
-
-
-  function escapeAttribute(value) {
-
-    return escapeHTML(value);
-
-  }
-
-
-  function formatSize(bytes) {
-
-    const number =
-      Number(bytes);
-
-
-    if (!number || number <= 0) {
-      return "";
+        return card;
     }
 
+    /* =========================
+       DOWNLOAD URL
+    ========================= */
 
-    const units = [
-      "B",
-      "KB",
-      "MB",
-      "GB"
-    ];
+    function getDownloadURL(file) {
 
+        if (file.url) {
+            return file.url;
+        }
 
-    const index =
-      Math.floor(
-        Math.log(number) /
-        Math.log(1024)
-      );
+        if (file.download_url) {
+            return file.download_url;
+        }
 
+        if (file.file_url) {
+            return file.file_url;
+        }
 
-    return (
-      Math.round(
-        number /
-        Math.pow(
-          1024,
-          Math.min(
-            index,
-            units.length - 1
-          )
-        ) * 10
-      ) / 10
-    )
-    + " "
-    + units[
-      Math.min(
-        index,
-        units.length - 1
-      )
-    ];
+        const path =
+            file.path ||
+            file.file_path ||
+            file.storage_path;
 
-  }
+        if (!path) {
+            return "#";
+        }
 
+        const {
+            data
+        } = supabaseClient.storage
+            .from("addy-files")
+            .getPublicUrl(path);
 
-  function formatDate(date) {
+        return data?.publicUrl || "#";
+    }
 
-    try {
+    /* =========================
+       CATEGORY
+    ========================= */
 
-      return new Date(date)
-        .toLocaleDateString(
-          undefined,
-          {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
-          }
+    function getCategory(file) {
+
+        if (file.category) {
+            return String(
+                file.category
+            ).toLowerCase();
+        }
+
+        const extension =
+            getExtension(file);
+
+        if (
+            extension === "pdf" ||
+            extension === "docx" ||
+            extension === "xlsx" ||
+            extension === "pptx"
+        ) {
+            return extension;
+        }
+
+        return "other";
+    }
+
+    /* =========================
+       EXTENSION
+    ========================= */
+
+    function getExtension(file) {
+
+        const filename =
+            file.name ||
+            file.title ||
+            file.file_name ||
+            file.path ||
+            "";
+
+        const parts =
+            String(filename).split(".");
+
+        if (parts.length < 2) {
+            return "other";
+        }
+
+        return parts.pop().toLowerCase();
+    }
+
+    /* =========================
+       ICON
+    ========================= */
+
+    function getIcon(extension) {
+
+        const icons = {
+            pdf: "📕",
+            docx: "📘",
+            xlsx: "📊",
+            pptx: "📽️",
+            doc: "📘",
+            xls: "📊",
+            ppt: "📽️"
+        };
+
+        return icons[extension] || "📎";
+    }
+
+    /* =========================
+       FILE SIZE
+    ========================= */
+
+    function formatSize(bytes) {
+
+        if (!bytes || bytes <= 0) {
+            return "File";
+        }
+
+        const units = [
+            "B",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+        let size = Number(bytes);
+        let unit = 0;
+
+        while (
+            size >= 1024 &&
+            unit < units.length - 1
+        ) {
+            size /= 1024;
+            unit++;
+        }
+
+        return `${size.toFixed(unit === 0 ? 0 : 1)} ${units[unit]}`;
+    }
+
+    /* =========================
+       COUNT
+    ========================= */
+
+    function updateCount(count) {
+
+        if (!fileCount) return;
+
+        fileCount.textContent =
+            `${count} ${count === 1 ? "file" : "files"}`;
+    }
+
+    /* =========================
+       SEARCH
+    ========================= */
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            renderFiles
         );
 
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    (event.metaKey || event.ctrlKey) &&
+                    event.key.toLowerCase() === "k"
+                ) {
+
+                    event.preventDefault();
+
+                    searchInput.focus();
+                }
+
+                if (
+                    event.key === "Escape" &&
+                    document.activeElement === searchInput
+                ) {
+
+                    searchInput.value = "";
+
+                    renderFiles();
+
+                    searchInput.blur();
+                }
+            }
+        );
     }
 
-    catch {
+    /* =========================
+       CATEGORIES
+    ========================= */
 
-      return "";
+    document
+        .querySelectorAll(".category")
+        .forEach(button => {
 
+            button.addEventListener(
+                "click",
+                () => {
+
+                    document
+                        .querySelectorAll(".category")
+                        .forEach(btn =>
+                            btn.classList.remove("active")
+                        );
+
+                    button.classList.add("active");
+
+                    currentCategory =
+                        button.dataset.category ||
+                        "all";
+
+                    renderFiles();
+                }
+            );
+        });
+
+    /* =========================
+       SCROLL ANIMATION
+    ========================= */
+
+    const revealElements =
+        document.querySelectorAll(
+            ".hero, .library-section, .file-card, footer"
+        );
+
+    if ("IntersectionObserver" in window) {
+
+        const observer =
+            new IntersectionObserver(
+                entries => {
+
+                    entries.forEach(entry => {
+
+                        if (entry.isIntersecting) {
+
+                            entry.target.classList.add(
+                                "visible"
+                            );
+
+                            observer.unobserve(
+                                entry.target
+                            );
+                        }
+                    });
+
+                },
+                {
+                    threshold: 0.08
+                }
+            );
+
+        revealElements.forEach(
+            element =>
+                observer.observe(element)
+        );
     }
 
-  }
+    /* =========================
+       SAFE HTML
+    ========================= */
 
+    function escapeHTML(value) {
 
-  function showEmpty() {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
-    loading.classList.add(
-      "hidden"
-    );
+    /* =========================
+       ERROR
+    ========================= */
 
-    fileGrid.innerHTML = "";
+    function showError(message) {
 
-    fileCount.textContent =
-      "0 files";
+        fileGrid.innerHTML = `
+            <div class="error-state">
+                <div>⚠</div>
 
-    emptyState.classList.remove(
-      "hidden"
-    );
+                <h3>
+                    Something went wrong
+                </h3>
 
-  }
+                <p>
+                    ${escapeHTML(message)}
+                </p>
+            </div>
+        `;
 
+        emptyState.classList.add("hidden");
+    }
 
-  /* --------------------------------
-     START
-  -------------------------------- */
+    /* =========================
+       START
+    ========================= */
 
-  loadFiles();
+    await loadFiles();
 
 });
