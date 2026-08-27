@@ -1,7 +1,5 @@
-```javascript
 /* =========================================================
    ADDY — FAST LIBRARY
-   Loads ONCE — no repeated reload
 ========================================================= */
 
 let allFiles = [];
@@ -22,13 +20,10 @@ const clearSearch = document.getElementById("clearSearch");
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
     setupSearch();
     setupCategories();
     setupMobileMenu();
-
     loadFiles();
-
 });
 
 
@@ -37,32 +32,16 @@ document.addEventListener("DOMContentLoaded", () => {
 ========================================================= */
 
 async function loadFiles() {
-
-    // Never load repeatedly
     if (isLoading) return;
-
     isLoading = true;
 
     showLoading();
 
-    console.log("ADDY: Loading files...");
-
-
-    // Safety timeout
     const timeout = new Promise((_, reject) => {
-
         setTimeout(() => {
-
-            reject(
-                new Error(
-                    "Supabase request timed out. Check your database/RLS connection."
-                )
-            );
-
+            reject(new Error("Supabase request timed out. Check your database/RLS policies."));
         }, 10000);
-
     });
-
 
     const request = supabaseClient
         .from("files")
@@ -77,76 +56,29 @@ async function loadFiles() {
             file_size,
             created_at
         `)
-        .order("created_at", {
-            ascending: false
-        });
-
+        .order("created_at", { ascending: false });
 
     try {
-
-        const { data, error } =
-            await Promise.race([
-                request,
-                timeout
-            ]);
-
+        const { data, error } = await Promise.race([request, timeout]);
 
         if (error) {
-
-            console.error(
-                "ADDY Supabase ERROR:",
-                error
-            );
-
-            showError(
-                error.message ||
-                "Could not load files."
-            );
-
+            console.error("ADDY Supabase ERROR:", error);
+            showError(error.message || "Could not load files.");
             return;
         }
 
-
-        allFiles =
-            Array.isArray(data)
-                ? data
-                : [];
-
-
+        allFiles = Array.isArray(data) ? data : [];
         isLoaded = true;
 
-
-        console.log(
-            "ADDY: Files loaded:",
-            allFiles.length
-        );
-
-
         hideLoading();
-
         renderFiles(allFiles);
 
-
     } catch (error) {
-
-        console.error(
-            "ADDY LOAD ERROR:",
-            error
-        );
-
-
-        showError(
-            error.message ||
-            "Unable to connect to Supabase."
-        );
-
-
+        console.error("ADDY LOAD ERROR:", error);
+        showError(error.message || "Unable to connect to Supabase.");
     } finally {
-
         isLoading = false;
-
     }
-
 }
 
 
@@ -155,24 +87,11 @@ async function loadFiles() {
 ========================================================= */
 
 function showLoading() {
-
-    if (loading) {
-
-        loading.classList.remove("hidden");
-
-    }
-
+    if (loading) loading.classList.remove("hidden");
 }
 
-
 function hideLoading() {
-
-    if (loading) {
-
-        loading.classList.add("hidden");
-
-    }
-
+    if (loading) loading.classList.add("hidden");
 }
 
 
@@ -181,154 +100,62 @@ function hideLoading() {
 ========================================================= */
 
 function renderFiles(files) {
-
     if (!fileGrid) return;
-
 
     fileGrid.innerHTML = "";
 
-
     if (fileCount) {
-
-        fileCount.textContent =
-            `${files.length} ${
-                files.length === 1
-                    ? "file"
-                    : "files"
-            }`;
-
+        fileCount.textContent = `${files.length} ${files.length === 1 ? "file" : "files"}`;
     }
 
-
     if (!files.length) {
-
-        if (emptyState) {
-
-            emptyState.classList.remove(
-                "hidden"
-            );
-
-        }
-
+        if (emptyState) emptyState.classList.remove("hidden");
         return;
     }
 
+    if (emptyState) emptyState.classList.add("hidden");
 
-    if (emptyState) {
-
-        emptyState.classList.add(
-            "hidden"
-        );
-
-    }
-
-
-    const fragment =
-        document.createDocumentFragment();
-
+    const fragment = document.createDocumentFragment();
 
     files.forEach((file, index) => {
+        const card = document.createElement("article");
+        card.className = "file-card";
+        card.style.animationDelay = `${Math.min(index * 30, 300)}ms`;
 
-        const card =
-            document.createElement("article");
-
-
-        card.className =
-            "file-card";
-
-
-        card.style.animationDelay =
-            `${Math.min(index * 30, 300)}ms`;
-
-
-        const type =
-            getFileType(file);
-
-
-        const icon =
-            getFileIcon(type);
-
-
-        const name =
-            file.title ||
-            file.file_name ||
-            "Untitled file";
-
-
-        const description =
-            file.description ||
-            "Study material from ADDY.";
-
-
-        const size =
-            formatSize(file.file_size);
-
-
-        const url =
-            getFileUrl(file);
-
+        const type = getFileType(file);
+        const icon = getFileIcon(type);
+        const name = file.title || file.file_name || "Untitled file";
+        const description = file.description || "Study material from ADDY.";
+        const size = formatSize(file.file_size);
+        const url = getFileUrl(file);
 
         card.innerHTML = `
-
-            <div class="file-type">
+            <div class="file-icon">
                 ${icon}
             </div>
 
-            <h3>
-                ${escapeHTML(name)}
-            </h3>
+            <h3>${escapeHTML(name)}</h3>
 
             <p class="file-description">
                 ${escapeHTML(description)}
             </p>
 
-            <div class="file-info">
+            <div class="file-meta">
                 ${escapeHTML(type.toUpperCase())}
-                ${
-                    size
-                        ? ` • ${escapeHTML(size)}`
-                        : ""
-                }
+                ${size ? ` • ${escapeHTML(size)}` : ""}
             </div>
 
             ${
                 url
-
-                ? `
-
-                <a
-                    class="download-button"
-                    href="${escapeHTML(url)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    ↓ DOWNLOAD
-                </a>
-
-                `
-
-                : `
-
-                <button
-                    class="download-button"
-                    disabled
-                >
-                    FILE UNAVAILABLE
-                </button>
-
-                `
+                ? `<a class="download-button" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">DOWNLOAD</a>`
+                : `<button class="download-button" disabled>FILE UNAVAILABLE</button>`
             }
-
         `;
 
-
         fragment.appendChild(card);
-
     });
 
-
     fileGrid.appendChild(fragment);
-
 }
 
 
@@ -337,52 +164,23 @@ function renderFiles(files) {
 ========================================================= */
 
 function getFileType(file) {
-
-    const filename =
-        file.file_name ||
-        file.title ||
-        "";
-
-
-    const parts =
-        filename.split(".");
-
+    const filename = file.file_name || file.title || "";
+    const parts = filename.split(".");
 
     if (parts.length > 1) {
-
-        return parts
-            .pop()
-            .toLowerCase();
-
+        return parts.pop().toLowerCase();
     }
-
 
     if (file.file_type) {
-
-        const mime =
-            file.file_type.toLowerCase();
-
-
-        if (mime.includes("pdf"))
-            return "pdf";
-
-        if (mime.includes("word"))
-            return "docx";
-
-        if (mime.includes("sheet"))
-            return "xlsx";
-
-        if (mime.includes("presentation"))
-            return "pptx";
-
-        if (mime.includes("text"))
-            return "txt";
-
+        const mime = file.file_type.toLowerCase();
+        if (mime.includes("pdf")) return "pdf";
+        if (mime.includes("word")) return "docx";
+        if (mime.includes("sheet")) return "xlsx";
+        if (mime.includes("presentation")) return "pptx";
+        if (mime.includes("text")) return "txt";
     }
 
-
     return "other";
-
 }
 
 
@@ -391,32 +189,18 @@ function getFileType(file) {
 ========================================================= */
 
 function getFileIcon(type) {
-
     const icons = {
-
         pdf: "📕",
-
         doc: "📘",
-
         docx: "📘",
-
         xls: "📊",
-
         xlsx: "📊",
-
         ppt: "📽️",
-
         pptx: "📽️",
-
         txt: "📎",
-
         zip: "📦"
-
     };
-
-
     return icons[type] || "📎";
-
 }
 
 
@@ -425,43 +209,18 @@ function getFileIcon(type) {
 ========================================================= */
 
 function formatSize(bytes) {
+    if (bytes === null || bytes === undefined || bytes === 0) return "";
 
-    if (
-        bytes === null ||
-        bytes === undefined ||
-        bytes === 0
-    ) {
-        return "";
-    }
-
-
-    const units =
-        ["B", "KB", "MB", "GB"];
-
-
-    let size =
-        Number(bytes);
-
-
+    const units = ["B", "KB", "MB", "GB"];
+    let size = Number(bytes);
     let index = 0;
 
-
-    while (
-        size >= 1024 &&
-        index < units.length - 1
-    ) {
-
+    while (size >= 1024 && index < units.length - 1) {
         size /= 1024;
-
         index++;
-
     }
 
-
-    return `${size.toFixed(
-        index === 0 ? 0 : 1
-    )} ${units[index]}`;
-
+    return `${size.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
 }
 
 
@@ -470,28 +229,15 @@ function formatSize(bytes) {
 ========================================================= */
 
 function getFileUrl(file) {
+    const path = file.file_path || file.path;
+    if (!path) return null;
 
-    const path =
-        file.file_path ||
-        file.path;
-
-
-    if (!path) {
-
-        return null;
-
-    }
-
-
-    const { data } =
-        supabaseClient
-            .storage
-            .from(SUPABASE_BUCKET)
-            .getPublicUrl(path);
-
+    const { data } = supabaseClient
+        .storage
+        .from(SUPABASE_BUCKET)
+        .getPublicUrl(path);
 
     return data?.publicUrl || null;
-
 }
 
 
@@ -500,109 +246,50 @@ function getFileUrl(file) {
 ========================================================= */
 
 function setupSearch() {
-
     if (!searchInput) return;
 
-
-    searchInput.addEventListener(
-        "input",
-        filterFiles
-    );
-
+    searchInput.addEventListener("input", filterFiles);
 
     if (clearSearch) {
-
-        clearSearch.addEventListener(
-            "click",
-            () => {
-
-                searchInput.value = "";
-
-                filterFiles();
-
-                searchInput.focus();
-
-            }
-        );
-
+        clearSearch.addEventListener("click", () => {
+            searchInput.value = "";
+            filterFiles();
+            searchInput.focus();
+        });
     }
-
 }
 
-
 function filterFiles() {
-
-    const query =
-        searchInput
-            ? searchInput.value
-                .toLowerCase()
-                .trim()
-            : "";
-
+    const query = searchInput
+        ? searchInput.value.toLowerCase().trim()
+        : "";
 
     if (clearSearch) {
-
-        clearSearch.style.display =
-            query
-                ? "flex"
-                : "none";
-
+        clearSearch.style.display = query ? "flex" : "none";
     }
 
+    const filtered = allFiles.filter(file => {
+        const name = String(file.title || file.file_name || "").toLowerCase();
+        const description = String(file.description || "").toLowerCase();
+        const type = getFileType(file);
+        const category = String(file.category || "").toLowerCase();
 
-    const filtered =
-        allFiles.filter(file => {
+        const searchMatch =
+            !query ||
+            name.includes(query) ||
+            description.includes(query) ||
+            type.includes(query) ||
+            category.includes(query);
 
-            const name =
-                String(
-                    file.title ||
-                    file.file_name ||
-                    ""
-                ).toLowerCase();
+        const categoryMatch =
+            currentCategory === "all" ||
+            type === currentCategory ||
+            category === currentCategory;
 
-
-            const description =
-                String(
-                    file.description ||
-                    ""
-                ).toLowerCase();
-
-
-            const type =
-                getFileType(file);
-
-
-            const category =
-                String(
-                    file.category ||
-                    ""
-                ).toLowerCase();
-
-
-            const searchMatch =
-                !query ||
-                name.includes(query) ||
-                description.includes(query) ||
-                type.includes(query) ||
-                category.includes(query);
-
-
-            const categoryMatch =
-                currentCategory === "all" ||
-                type === currentCategory ||
-                category === currentCategory;
-
-
-            return (
-                searchMatch &&
-                categoryMatch
-            );
-
-        });
-
+        return searchMatch && categoryMatch;
+    });
 
     renderFiles(filtered);
-
 }
 
 
@@ -611,42 +298,16 @@ function filterFiles() {
 ========================================================= */
 
 function setupCategories() {
-
-    document
-        .querySelectorAll(".category")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .querySelectorAll(".category")
-                        .forEach(btn => {
-
-                            btn.classList.remove(
-                                "active"
-                            );
-
-                        });
-
-
-                    button.classList.add(
-                        "active"
-                    );
-
-
-                    currentCategory =
-                        button.dataset.category;
-
-
-                    filterFiles();
-
-                }
-            );
-
+    document.querySelectorAll(".category").forEach(button => {
+        button.addEventListener("click", () => {
+            document.querySelectorAll(".category").forEach(btn => {
+                btn.classList.remove("active");
+            });
+            button.classList.add("active");
+            currentCategory = button.dataset.category;
+            filterFiles();
         });
-
+    });
 }
 
 
@@ -655,33 +316,13 @@ function setupCategories() {
 ========================================================= */
 
 function setupMobileMenu() {
-
-    const menu =
-        document.querySelector(
-            ".mobile-menu"
-        );
-
-
-    const nav =
-        document.querySelector(
-            ".nav-links"
-        );
-
-
+    const menu = document.querySelector(".mobile-menu");
+    const nav = document.querySelector(".nav-links");
     if (!menu || !nav) return;
 
-
-    menu.addEventListener(
-        "click",
-        () => {
-
-            nav.classList.toggle(
-                "open"
-            );
-
-        }
-    );
-
+    menu.addEventListener("click", () => {
+        nav.classList.toggle("open");
+    });
 }
 
 
@@ -690,70 +331,29 @@ function setupMobileMenu() {
 ========================================================= */
 
 function showError(message) {
-
     hideLoading();
-
-
     if (!fileGrid) return;
 
-
     fileGrid.innerHTML = `
-
-        <div class="error-state">
-
-            <div class="error-icon">
-                ⚠
-            </div>
-
-            <h3>
-                Library connection failed
-            </h3>
-
-            <p>
-                ${escapeHTML(message)}
-            </p>
-
-            <button
-                class="download-button"
-                id="retryButton"
-            >
+        <div class="empty-state">
+            <div class="empty-notebook">⚠</div>
+            <h3>Library connection failed</h3>
+            <p>${escapeHTML(message)}</p>
+            <button class="download-button" id="retryButton" style="margin-top:20px;max-width:200px;">
                 TRY AGAIN
             </button>
-
         </div>
-
     `;
 
+    if (fileCount) fileCount.textContent = "0 files";
 
-    if (fileCount) {
-
-        fileCount.textContent =
-            "0 files";
-
-    }
-
-
-    const retry =
-        document.getElementById(
-            "retryButton"
-        );
-
-
+    const retry = document.getElementById("retryButton");
     if (retry) {
-
-        retry.addEventListener(
-            "click",
-            () => {
-
-                isLoading = false;
-
-                loadFiles();
-
-            }
-        );
-
+        retry.addEventListener("click", () => {
+            isLoading = false;
+            loadFiles();
+        });
     }
-
 }
 
 
@@ -762,13 +362,10 @@ function showError(message) {
 ========================================================= */
 
 function escapeHTML(value) {
-
     return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-
 }
-```
